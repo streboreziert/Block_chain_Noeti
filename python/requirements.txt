@@ -1,0 +1,5 @@
+flask>=3.0
+cryptography>=42.0
+gunicorn>=22.0
+redis>=5.0
+zeroconf>=0.131.0

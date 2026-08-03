@@ -1,0 +1,20 @@
+name: noetis
+
+services:
+  network:
+    build: .
+    container_name: noetis-network
+    restart: unless-stopped
+    ports:
+      - "5052:5052"
+    volumes:
+      - noetis-data:/app/connection-layer/data
+    environment:
+      # Local/dev onboarding only — prod compose keeps faucet off.
+      - ALLOW_FAUCET=limited
+      - FAUCET_MAX_AMOUNT=50
+      - HUB_BLIND=0
+      - NOETIS_APP_VERSION=0.5.35
+
+volumes:
+  noetis-data:

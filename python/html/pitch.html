@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pitch — Noeti</title>
+  <meta name="description" content="Noeti vs Hunch, ChatGPT, Cursor, and Open WebUI — measurable differences on Where routing and hardware control." />
+  <link rel="canonical" href="https://noeticompute.com/pitch" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <script src="/static/theme-boot.js?v=230"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/noeti-site.css?v=230" />
+  <link rel="stylesheet" href="/static/noeti-uniform.css?v=230" />
+<link rel="stylesheet" href="/static/nu-ui.css?v=230" />
+  <link rel="stylesheet" href="/static/theme.css?v=230" />
+</head>
+<body class="pitch-deck">
+    <nav class="topnav nu-nav" aria-label="Primary">
+    <a class="mark" href="/">Noeti</a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/whitepaper">Whitepaper</a></li>
+      <li><a href="/chat">Chat</a></li>
+      <li><a href="/canvas">Canvas</a></li>
+      <li><a href="/pricing">Pricing</a></li>
+    </ul>
+    <a class="nu-btn nu-btn--solid nu-btn--sm nu-nav-cta" href="/canvas?sample=where">Open</a>
+    <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </nav>
+
+  <main class="deck">
+    <section class="deck-slide">
+      <p class="deck-kicker">Product pitch</p>
+      <h1>Noeti</h1>
+      <p class="lead">
+        We are not building another AI.
+        We make AI run where you want — on your PC, phone, private rack, or cloud —
+        with a map that shows the hardware, and a seal that proves what ran.
+      </p>
+      <p class="muted" style="margin-top:0.85rem">
+        Hardware control · Where routing · Canvas · ProofPath
+      </p>
+    </section>
+
+    <section class="deck-slide">
+      <h2>I · The problem</h2>
+      <p>
+        Today’s AI products hide the machine. Work disappears into one vendor cloud.
+        You get speed, and lose custody. Privacy becomes a toggle. Routing is an afterthought.
+      </p>
+      <p style="margin-top:0.85rem">
+        Teams that publish under pressure need the opposite:
+        <strong>choose the hardware</strong>, see the path, keep sensitive drafts local,
+        and only then ask for a smarter model.
+      </p>
+    </section>
+
+    <section class="deck-slide">
+      <h2>II · What we sell</h2>
+      <p>
+        A spatial control plane for compute. Canvas draws Where zones around work.
+        Pair a computer in one command. Point a phone into the board.
+        Run local models on the desk that owns the job — or escalate to cloud when you mean to.
+      </p>
+      <p style="margin-top:0.85rem">
+        Models are interchangeable. <strong>Placement is the product.</strong>
+      </p>
+    </section>
+
+    <section class="deck-slide">
+      <h2>III · Vs real products</h2>
+      <p class="compare-note">
+        Same checklist against tools people already buy.
+        Capabilities only — not slogans.
+      </p>
+      <div class="compare-wrap">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th>Hunch<br /><span>AI canvas workspace</span></th>
+              <th>ChatGPT<br /><span>consumer chat</span></th>
+              <th>Cursor<br /><span>AI code editor</span></th>
+              <th>Open WebUI<br /><span>local Ollama UI</span></th>
+              <th class="hi">Noeti</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Spatial AI board</td>
+              <td>Yes</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+              <td class="hi">Yes · Canvas</td>
+            </tr>
+            <tr>
+              <td>Default data home</td>
+              <td>Vendor cloud</td>
+              <td>Vendor cloud</td>
+              <td>Vendor cloud + repo</td>
+              <td>This machine</td>
+              <td class="hi">Your choice</td>
+            </tr>
+            <tr>
+              <td>Visible Where map (PC / private / cloud)</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+              <td class="hi">Yes · zones</td>
+            </tr>
+            <tr>
+              <td>Route a job to a paired PC</td>
+              <td>No</td>
+              <td>No</td>
+              <td>Local agent · IDE only</td>
+              <td>Local host only</td>
+              <td class="hi">Yes · device bridge</td>
+            </tr>
+            <tr>
+              <td>Phone as capture / compute node</td>
+              <td>No</td>
+              <td>App chat only</td>
+              <td>No</td>
+              <td>No</td>
+              <td class="hi">Yes · field pair</td>
+            </tr>
+            <tr>
+              <td>Multi-model workflow blocks</td>
+              <td>Yes · strong</td>
+              <td>Limited</td>
+              <td>IDE agents</td>
+              <td>Model pick</td>
+              <td class="hi">Yes · board + roles</td>
+            </tr>
+            <tr>
+              <td>Publish reusable tools from a board</td>
+              <td>Yes</td>
+              <td>GPTs / apps</td>
+              <td>Rules / skills</td>
+              <td>No</td>
+              <td class="hi">Board + share link</td>
+            </tr>
+            <tr>
+              <td>Allowlisted project brain / FS map</td>
+              <td>Uploads / context</td>
+              <td>Uploads</td>
+              <td>Repo context</td>
+              <td>Folder dump</td>
+              <td class="hi">Second Brain</td>
+            </tr>
+            <tr>
+              <td>Cloud optional (not mandatory)</td>
+              <td>No</td>
+              <td>No</td>
+              <td>Mostly no</td>
+              <td>Yes</td>
+              <td class="hi">Yes</td>
+            </tr>
+            <tr>
+              <td>Contest / claim visibility on the board</td>
+              <td>No</td>
+              <td>Flattened answers</td>
+              <td>N/A</td>
+              <td>N/A</td>
+              <td class="hi">Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <ul class="compare-scores">
+        <li><strong>Hunch</strong> — closest peer on spatial AI boards; cloud-first models and tools, no hardware Where routing.</li>
+        <li><strong>ChatGPT</strong> — polished chat; no board, no PC pairing, custody sits with the vendor.</li>
+        <li><strong>Cursor</strong> — best-in-class coding desk; stays inside the IDE, not a multi-machine Where map.</li>
+        <li><strong>Open WebUI</strong> — honest local models; single host, no team board or device mesh.</li>
+        <li><strong>Noeti</strong> — unique at placement: Canvas + Where + paired PC/phone in one control layer.</li>
+      </ul>
+    </section>
+
+    <section class="deck-slide">
+      <h2>IV · How it works</h2>
+      <div class="deck-card" style="margin-bottom:1rem">
+        <h3>Where</h3>
+        <p>
+          Every region on the board names a machine class: private, local, specific PC, phone, mesh, or cloud.
+          The map travels with the workflow.
+        </p>
+      </div>
+      <div class="deck-card" style="margin-bottom:1rem">
+        <h3>Connect</h3>
+        <p>
+          One terminal command links a PC. A link pairs a phone.
+          Online devices appear in the picker — real routing, not a placeholder label.
+        </p>
+      </div>
+      <div class="deck-card" style="margin-bottom:1rem">
+        <h3>Seal</h3>
+        <p>
+          When the work matters, Seal writes a ProofPath: what ran, where it ran, and what contested.
+          Share the receipt — not just the chat transcript.
+        </p>
+      </div>
+      <div class="path" style="margin-top:1.25rem">
+        <span>Draw Where</span><span>Connect hardware</span><span>Run</span>
+        <span class="hot">Seal</span><span class="hot">Share</span>
+      </div>
+    </section>
+
+    <section class="deck-slide">
+      <h2>V · Who it is for</h2>
+      <p>
+        Anyone who cannot afford to leak a binder into the wrong cloud —
+        newsrooms, legal, research, compliance, finance, NGOs —
+        and builders who want local models without giving up a shared board.
+      </p>
+    </section>
+
+    <section class="deck-slide">
+      <h2>VI · Business</h2>
+      <ol class="contrib">
+        <li><strong>Solo €19</strong> — 1 user · 3 projects · 2 devices · metered tokens.</li>
+        <li><strong>Desk €79</strong> — 5 users · 15 projects · 8 devices · shared Where map.</li>
+        <li><strong>Studio €199</strong> — 20 users · 60 projects · 25 devices · private-first floors.</li>
+      </ol>
+      <p style="margin-top:1rem" class="muted">
+        Free Canvas and Chat to feel the control layer. Add-ons for tokens, seats, and storage — see <a href="/pricing">Pricing</a>.
+      </p>
+    </section>
+
+    <section class="deck-slide">
+      <h2>VII · One line</h2>
+      <p class="deck-line">
+        AI where you want it — on hardware you control.
+      </p>
+      <div class="deck-cta">
+        <a class="primary" href="/canvas?sample=where">Open Canvas</a>
+        <a href="/philosophy">Philosophy</a>
+        <a href="/pricing">Pricing</a>
+        <a href="mailto:dev@noeticompute.com">dev@noeticompute.com</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="mailto:dev@noeticompute.com">dev@noeticompute.com</a> · AI where you want it · <a href="/whitepaper">technical whitepaper</a></p>
+  </footer>
+  <script src="/static/site.js?v=230"></script>
+</body>
+</html>

@@ -1,0 +1,208 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: noetis
+      POSTGRES_PASSWORD: noetis
+      POSTGRES_DB: noetis
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U noetis"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://noetis:noetis@postgres:5432/noetis
+      REDIS_URL: redis://redis:6379
+      COORDINATOR_INTERNAL_URL: http://coordinator:3002
+      FULL_NODE_URL: http://fullnode1:4000
+      PORT: 3001
+      INTERNAL_DISPATCH_TOKEN: ${INTERNAL_DISPATCH_TOKEN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  coordinator:
+    build:
+      context: .
+      dockerfile: services/coordinator/Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      DATABASE_URL: postgresql://noetis:noetis@postgres:5432/noetis
+      REDIS_URL: redis://redis:6379
+      VALIDATOR_URL: http://validator:3003
+      PORT: 3002
+      INTERNAL_DISPATCH_TOKEN: ${INTERNAL_DISPATCH_TOKEN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  validator:
+    build:
+      context: .
+      dockerfile: services/validator/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      DATABASE_URL: postgresql://noetis:noetis@postgres:5432/noetis
+      PORT: 3003
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  fullnode1:
+    build:
+      context: .
+      dockerfile: services/full-node/Dockerfile
+    ports:
+      - "4000:4000"
+      - "4001:4001"
+    environment:
+      P2P_PORT: 4001
+      HTTP_PORT: 4000
+      IS_VALIDATOR: "true"
+      VALIDATOR_ID: validator-1
+      NOETIS_WALLET_PATH: /app/data/wallet.json
+      NOETIS_DATA_DIR: /app/data
+      NOETIS_PUBLIC_HOST: ${PUBLIC_HOST:-}
+    volumes:
+      - fullnode1-data:/app/data
+
+  fullnode2:
+    build:
+      context: .
+      dockerfile: services/full-node/Dockerfile
+    ports:
+      - "4010:4000"
+      - "4011:4001"
+    environment:
+      P2P_PORT: 4001
+      HTTP_PORT: 4000
+      P2P_BOOTSTRAP: ws://fullnode1:4001
+      IS_VALIDATOR: "true"
+      VALIDATOR_ID: validator-2
+      NOETIS_WALLET_PATH: /app/data/wallet.json
+      NOETIS_DATA_DIR: /app/data
+    volumes:
+      - fullnode2-data:/app/data
+    depends_on:
+      - fullnode1
+
+  fullnode3:
+    build:
+      context: .
+      dockerfile: services/full-node/Dockerfile
+    ports:
+      - "4020:4000"
+      - "4021:4001"
+    environment:
+      P2P_PORT: 4001
+      HTTP_PORT: 4000
+      P2P_BOOTSTRAP: ws://fullnode1:4001
+      IS_VALIDATOR: "true"
+      VALIDATOR_ID: validator-3
+      NOETIS_WALLET_PATH: /app/data/wallet.json
+      NOETIS_DATA_DIR: /app/data
+    volumes:
+      - fullnode3-data:/app/data
+    depends_on:
+      - fullnode1
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+    depends_on:
+      - api
+
+  node1:
+    build:
+      context: .
+      dockerfile: services/node/Dockerfile
+    environment:
+      NOETIS_COORDINATOR_URL: ws://coordinator:3002/ws
+      P2P_BOOTSTRAP: ws://fullnode1:4001
+      P2P_PORT: 4010
+      OLLAMA_URL: http://host.docker.internal:11434
+      NOETIS_WALLET_PATH: /app/data/wallet1.json
+      NODE_NAME: node1
+    volumes:
+      - node1-data:/app/data
+    depends_on:
+      - coordinator
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  node2:
+    build:
+      context: .
+      dockerfile: services/node/Dockerfile
+    environment:
+      NOETIS_COORDINATOR_URL: ws://coordinator:3002/ws
+      P2P_BOOTSTRAP: ws://fullnode1:4001
+      P2P_PORT: 4010
+      OLLAMA_URL: http://host.docker.internal:11434
+      NOETIS_WALLET_PATH: /app/data/wallet2.json
+      NODE_NAME: node2
+    volumes:
+      - node2-data:/app/data
+    depends_on:
+      - coordinator
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  node3:
+    build:
+      context: .
+      dockerfile: services/node/Dockerfile
+    environment:
+      NOETIS_COORDINATOR_URL: ws://coordinator:3002/ws
+      P2P_BOOTSTRAP: ws://fullnode1:4001
+      P2P_PORT: 4010
+      OLLAMA_URL: http://host.docker.internal:11434
+      NOETIS_WALLET_PATH: /app/data/wallet3.json
+      NODE_NAME: node3
+    volumes:
+      - node3-data:/app/data
+    depends_on:
+      - coordinator
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  pgdata:
+  fullnode1-data:
+  fullnode2-data:
+  fullnode3-data:
+  node1-data:
+  node2-data:
+  node3-data:

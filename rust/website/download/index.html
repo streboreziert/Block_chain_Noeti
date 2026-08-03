@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Download Noetis</title>
+  <style>
+    :root { --bg:#030806; --text:#c8ffd8; --accent:#00ff88; --muted:#5a8f6a; --mono:"IBM Plex Mono",ui-monospace,monospace; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:var(--mono); background:radial-gradient(ellipse 70% 50% at 50% -10%,rgba(0,255,136,.08),transparent),var(--bg); color:var(--text); min-height:100vh; }
+    main { max-width:860px; margin:0 auto; padding:56px 24px 80px; }
+    h1 { font-size:clamp(1.7rem,4vw,2.4rem); font-weight:500; margin:0 0 10px; }
+    p.lead { color:var(--muted); line-height:1.55; margin:0 0 32px; max-width:36rem; }
+    .grid { display:grid; gap:12px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
+    a.card { display:block; padding:16px; border:1px solid rgba(0,255,136,.22); background:rgba(0,255,136,.03); color:inherit; text-decoration:none; }
+    a.card:hover { border-color:var(--accent); background:rgba(0,255,136,.08); }
+    a.card strong { display:block; color:var(--accent); margin-bottom:6px; }
+    a.card span { color:var(--muted); font-size:.82rem; line-height:1.4; }
+    code { color:var(--accent); font-size:.82rem; }
+    .note { margin-top:32px; padding:14px; border-left:2px solid var(--accent); color:var(--muted); line-height:1.55; }
+    .eyebrow { color:var(--muted); font-size:.78rem; margin-bottom:8px; }
+  </style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">Noetis</p>
+  <h1>Download</h1>
+  <p class="lead">Unzip → start the app → in the terminal type <code>setup</code>. Wallet stays on your device.</p>
+
+  <div class="grid">
+    <a class="card" href="/downloads/noetis-macos-aarch64.zip">
+      <strong>macOS · Apple Silicon</strong>
+      <span>START Noetis.command</span>
+    </a>
+    <a class="card" href="/downloads/noetis-macos-x86_64.zip">
+      <strong>macOS · Intel</strong>
+      <span>START Noetis.command</span>
+    </a>
+    <a class="card" href="/downloads/noetis-windows-x86_64.zip">
+      <strong>Windows</strong>
+      <span>START Noetis.bat</span>
+    </a>
+    <a class="card" href="/downloads/noetis-linux-x86_64.zip">
+      <strong>Linux · x86_64</strong>
+      <span>START Noetis.sh</span>
+    </a>
+    <a class="card" href="/downloads/noetis-linux-aarch64.zip">
+      <strong>Linux · ARM64</strong>
+      <span>START Noetis.sh</span>
+    </a>
+    <a class="card" href="/mobile/">
+      <strong>Phone</strong>
+      <span>Add to Home Screen</span>
+    </a>
+  </div>
+
+  <div class="note">
+    macOS / Linux: <code>curl -sSL https://noeticompute.com/install.sh | bash</code><br/>
+    Windows: <code>irm https://noeticompute.com/install.ps1 | iex</code>
+  </div>
+</main>
+</body>
+</html>

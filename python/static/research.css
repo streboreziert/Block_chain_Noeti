@@ -1,0 +1,173 @@
+/* Research / academic UI — minimal, no rounded corners, no gradients */
+
+:root {
+  --bg: #ffffff;
+  --bg-alt: #f5f5f5;
+  --text: #1a1a1a;
+  --muted: #555555;
+  --border: #cccccc;
+  --border-dark: #999999;
+  --accent: #1a1a1a;
+  --link: #004080;
+  --ok: #2d6a2d;
+  --warn: #8a6d00;
+  --error: #8b0000;
+  --font: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", "Courier New", monospace;
+  --serif: "IBM Plex Serif", Georgia, serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text);
+  background: var(--bg);
+}
+
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.wrap {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 24px 20px 48px;
+}
+
+.site-header {
+  border-bottom: 2px solid var(--text);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.site-header h1 {
+  margin: 0 0 4px;
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.site-header .subtitle {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  max-width: 720px;
+}
+
+.site-nav { margin-top: 12px; font-size: 0.85rem; }
+.site-nav a { margin-right: 16px; }
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px solid var(--border-dark);
+  font-size: 0.8rem;
+  font-family: var(--mono);
+  background: var(--bg-alt);
+}
+
+.badge.ok { border-color: var(--ok); color: var(--ok); }
+
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) { .concept-grid { grid-template-columns: 1fr; } }
+
+.concept-card {
+  border: 1px solid var(--border);
+  padding: 12px 14px;
+  background: var(--bg-alt);
+}
+
+.concept-card strong {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--serif);
+  font-size: 0.92rem;
+}
+
+.concept-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.panel {
+  border: 1px solid var(--border);
+  padding: 16px;
+  margin-bottom: 20px;
+  background: var(--bg);
+}
+
+.panel h2, .section-title {
+  margin: 0 0 12px;
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+.section-title { margin: 32px 0 12px; }
+
+button, .btn {
+  display: inline-block;
+  padding: 8px 14px;
+  border: 1px solid var(--text);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+button:hover, .btn:hover { background: var(--text); color: var(--bg); }
+.btn-primary { background: var(--text); color: var(--bg); }
+.btn-primary:hover { background: var(--bg); color: var(--text); }
+
+.actions-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.stats { display: flex; gap: 0; border: 1px solid var(--border); margin-bottom: 20px; flex-wrap: wrap; }
+.stat { flex: 1; min-width: 120px; padding: 12px 14px; border-right: 1px solid var(--border); }
+.stat:last-child { border-right: none; }
+.stat span { display: block; font-size: 0.75rem; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+.stat strong { font-family: var(--mono); font-size: 1.1rem; }
+
+.step { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.step-num { width: 24px; font-family: var(--mono); font-weight: 600; flex-shrink: 0; color: var(--muted); }
+.step-body strong { display: block; margin-bottom: 2px; }
+.step-body p { margin: 0 0 4px; color: var(--muted); font-size: 0.85rem; }
+
+code { font-family: var(--mono); font-size: 0.75rem; background: var(--bg-alt); padding: 2px 6px; border: 1px solid var(--border); }
+
+.flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 12px 0; font-size: 0.8rem; font-family: var(--mono); }
+.flow .box { border: 1px solid var(--border); padding: 6px 10px; background: var(--bg-alt); }
+.flow .arrow { color: var(--muted); }
+
+pre.struct { margin: 0; font-family: var(--mono); font-size: 0.78rem; color: var(--muted); white-space: pre-wrap; border: 1px solid var(--border); padding: 12px; background: var(--bg-alt); }
+
+.site-footer {
+  margin-top: 48px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--muted);
+}

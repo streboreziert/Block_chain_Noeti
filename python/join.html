@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Step-by-step guide to join Noetis Compute Lab as a decentralized LLM worker node." />
+  <title>Join as Worker — Noetis Compute Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="static/research.css" />
+  <link rel="stylesheet" href="static/site.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="site-header header-row">
+      <div>
+        <h1>Noetis Compute Lab</h1>
+        <p class="subtitle">Worker onboarding — connect your machine to the decentralized inference grid.</p>
+        <nav class="site-nav">
+          <a href="index.html">Home</a>
+          <a href="join.html">Join as worker</a>
+          <a href="http://127.0.0.1:5051" target="_blank" rel="noopener">Live dashboard</a>
+        </nav>
+      </div>
+      <div class="badge">Worker setup</div>
+    </header>
+
+    <section class="hero">
+      <h2>Connect your node to the network</h2>
+      <p>
+        Workers perform real local LLM inference and earn MLC when their output matches network consensus.
+        Setup takes about five minutes on a machine with Python 3.10+ and Ollama installed.
+      </p>
+      <div class="actions-row">
+        <a class="btn btn-primary" href="#quick-start">Quick start</a>
+        <a class="btn" href="http://127.0.0.1:5051" target="_blank" rel="noopener">Verify on dashboard</a>
+      </div>
+    </section>
+
+    <h2 class="section-title" id="requirements">Requirements</h2>
+    <div class="req-grid">
+      <div class="req-item">
+        <strong>Python 3.10+</strong>
+        <p>Required to run the worker process and socket protocol client.</p>
+      </div>
+      <div class="req-item">
+        <strong>Ollama</strong>
+        <p>Local LLM runtime. Install from <a href="https://ollama.com" target="_blank" rel="noopener">ollama.com</a> and pull a model.</p>
+      </div>
+      <div class="req-item">
+        <strong>TCP access to coordinator</strong>
+        <p>Default host <code>127.0.0.1</code>, port <code>9600</code>. Adjust for remote coordinators.</p>
+      </div>
+      <div class="req-item">
+        <strong>Compute headroom</strong>
+        <p>Small models (1B params) run on CPU. Larger models benefit from GPU acceleration.</p>
+      </div>
+    </div>
+
+    <h2 class="section-title" id="quick-start">Quick start</h2>
+    <div class="panel">
+      <h2>Option A — Web dashboard (recommended)</h2>
+      <p style="margin:0 0 12px;color:var(--muted);font-size:0.85rem">
+        Starts the coordinator, workers, and a live network graph in one command.
+      </p>
+      <pre class="struct">cd connection-layer
+pip install -r requirements.txt
+python3 web.py --workers 10</pre>
+      <p style="margin:12px 0 0;color:var(--muted);font-size:0.85rem">
+        Open <a href="http://127.0.0.1:5051" target="_blank" rel="noopener">http://127.0.0.1:5051</a> to watch workers connect and submit test prompts.
+      </p>
+    </div>
+
+    <div class="panel">
+      <h2>Option B — Join as an independent worker</h2>
+      <p style="margin:0 0 12px;color:var(--muted);font-size:0.85rem">
+        Run your own worker process and connect to an existing coordinator.
+      </p>
+
+      <div class="step">
+        <span class="step-num">1</span>
+        <div class="step-body">
+          <strong>Install and start Ollama</strong>
+          <pre class="struct" style="margin-top:8px">ollama serve
+ollama pull llama3.2:1b</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-num">2</span>
+        <div class="step-body">
+          <strong>Start the coordinator</strong>
+          <p>In a separate terminal, from the <code>connection-layer/</code> directory:</p>
+          <pre class="struct">python3 coordinator.py</pre>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-num">3</span>
+        <div class="step-body">
+          <strong>Register your worker</strong>
+          <p>Choose a unique worker ID and connect:</p>
+          <pre class="struct">cd connection-layer
+python3 worker.py --id worker-01</pre>
+          <p>Additional flags: <code>--host</code>, <code>--port</code>, <code>--model</code>, <code>--ollama-url</code></p>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="step-num">4</span>
+        <div class="step-body">
+          <strong>Confirm registration</strong>
+          <p>You should see <code>connected to coordinator at 127.0.0.1:9600</code>. Submit a prompt from the dashboard or CLI:</p>
+          <pre class="struct">python3 client.py "What is decentralized inference?"</pre>
+        </div>
+      </div>
+    </div>
+
+    <h2 class="section-title">Protocol overview</h2>
+    <div class="panel">
+      <p style="margin:0 0 12px;color:var(--muted);font-size:0.85rem">
+        Workers communicate with the coordinator using JSON-line messages over TCP.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Message</th><th>Direction</th><th>Purpose</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>register</code></td><td>worker → coordinator</td><td>Join the network</td></tr>
+          <tr><td><code>registered</code></td><td>coordinator → worker</td><td>Acknowledge worker</td></tr>
+          <tr><td><code>task</code></td><td>coordinator → worker</td><td>Inference assignment</td></tr>
+          <tr><td><code>result</code></td><td>worker → coordinator</td><td>Inference output + timing</td></tr>
+          <tr><td><code>prompt</code></td><td>client → coordinator</td><td>User request</td></tr>
+          <tr><td><code>task_complete</code></td><td>coordinator → client</td><td>Consensus response + rewards</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">Configuration</h2>
+    <div class="panel">
+      <table>
+        <thead>
+          <tr><th>Flag / env</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>--host</code></td><td><code>127.0.0.1</code></td><td>Coordinator host</td></tr>
+          <tr><td><code>--port</code></td><td><code>9600</code></td><td>Coordinator port</td></tr>
+          <tr><td><code>--model</code></td><td><code>llama3.2:1b</code></td><td>Ollama model per worker</td></tr>
+          <tr><td><code>--reward</code></td><td><code>10.0</code></td><td>Base reward pool per task</td></tr>
+          <tr><td><code>WORKERS</code></td><td><code>10</code></td><td>Workers started by run_demo.sh</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">Troubleshooting</h2>
+    <div class="panel">
+      <div class="step">
+        <span class="step-num">!</span>
+        <div class="step-body">
+          <strong>Ollama not reachable</strong>
+          <pre class="struct" style="margin-top:8px">ollama serve
+ollama pull llama3.2:1b</pre>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">!</span>
+        <div class="step-body">
+          <strong>No workers connected</strong>
+          <p>Start workers before submitting prompts, or use <code>./run_demo.sh</code> in connection-layer.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-num">!</span>
+        <div class="step-body">
+          <strong>Slow first response</strong>
+          <p>First inference loads the model into memory. Subsequent tasks are faster.</p>
+        </div>
+      </div>
+    </div>
+
+    <section class="join-cta">
+      <h3>Worker running?</h3>
+      <p>Check the live network graph to see your node online and earning MLC.</p>
+      <a class="btn btn-primary" href="http://127.0.0.1:5051" target="_blank" rel="noopener">Open dashboard</a>
+    </section>
+
+    <footer class="site-footer">
+      <a href="index.html">← Back to home</a>
+      ·
+      <a href="../connection-layer/README.md">Full technical docs</a>
+    </footer>
+  </div>
+</body>
+</html>

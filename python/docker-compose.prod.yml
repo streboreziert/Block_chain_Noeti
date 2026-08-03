@@ -1,0 +1,151 @@
+name: noeticompute
+
+networks:
+  coolify:
+    external: true
+
+volumes:
+  noetis-chain-data:
+  noetis-redis-data:
+  noetis-ollama-data:
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: noetis-redis
+    restart: unless-stopped
+    networks:
+      - coolify
+    volumes:
+      - noetis-redis-data:/data
+
+  # Site compute LLM — qwen2.5:1.5b (3–4GB hosts); keep 0.5b as optional fallback.
+  # Manual pull: docker compose -f docker-compose.prod.yml exec ollama ollama pull qwen2.5:1.5b
+  ollama:
+    image: ollama/ollama:latest
+    container_name: noetis-ollama
+    restart: unless-stopped
+    networks:
+      - coolify
+    volumes:
+      - noetis-ollama-data:/root/.ollama
+    expose:
+      - "11434"
+    healthcheck:
+      test: ["CMD-SHELL", "ollama list >/dev/null 2>&1 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  # One-shot: pull site model on first start (safe to re-run; skips if present).
+  ollama-pull:
+    image: ollama/ollama:latest
+    container_name: noetis-ollama-pull
+    depends_on:
+      ollama:
+        condition: service_started
+    networks:
+      - coolify
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+    restart: "no"
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        echo "Waiting for Ollama at $$OLLAMA_HOST ..."
+        i=0
+        until ollama list >/dev/null 2>&1; do
+          i=$$((i+1))
+          if [ "$$i" -gt 90 ]; then
+            echo "Ollama not ready after waiting"; exit 1
+          fi
+          sleep 2
+        done
+        if ollama list | grep -q "qwen2.5:1.5b"; then
+          echo "Model qwen2.5:1.5b already present"
+        else
+          echo "Pulling qwen2.5:1.5b (may take several minutes)..."
+          ollama pull qwen2.5:1.5b
+        fi
+        if ollama list | grep -q "qwen2.5:0.5b"; then
+          echo "Fallback qwen2.5:0.5b already present"
+        else
+          echo "Pulling fallback qwen2.5:0.5b..."
+          ollama pull qwen2.5:0.5b || echo "Fallback pull skipped/failed (non-fatal)"
+        fi
+        for m in llama3.2:1b gemma2:2b tinyllama; do
+          if ollama list | grep -q "^$${m}"; then
+            echo "Model $$m already present"
+          else
+            echo "Pulling $$m ..."
+            ollama pull "$$m" || echo "Pull $$m skipped/failed (non-fatal)"
+          fi
+        done
+        echo "Ollama models ready"
+
+  network:
+    build: .
+    container_name: noetis-network
+    restart: unless-stopped
+    depends_on:
+      - redis
+      - ollama
+    networks:
+      - coolify
+    volumes:
+      - noetis-chain-data:/app/connection-layer/data
+    env_file:
+      - .env.federation
+      - .env.openrouter
+    environment:
+      - ALLOW_FAUCET=0
+      - FAUCET_MAX_AMOUNT=50
+      - HUB_BLIND=1
+      - MESH_CONSENSUS=${MESH_CONSENSUS:-1}
+      - PUBLIC_URL=https://noeticompute.com
+      - PUBLIC_HOST=${PUBLIC_HOST:?Set PUBLIC_HOST}
+      - HUB_ROLE=entry
+      - REDIS_URL=redis://redis:6379/0
+      - MDNS_DISCOVERY=0
+      - FEDERATION_PEERS=${FEDERATION_PEERS:-}
+      - COSIGN_QUORUM=${COSIGN_QUORUM:-2}
+      - BOOTSTRAP_PEERS=${BOOTSTRAP_PEERS:-https://noeticompute.com}
+      - PYTHONUNBUFFERED=1
+      - OLLAMA_HOST=http://ollama:11434
+      - HUB_MODEL=qwen2.5:1.5b
+      - HUB_MODEL_FALLBACK=qwen2.5:0.5b
+      - WORKFLOW_WORKER_MODEL=qwen2.5:1.5b
+      - GOLEM_CHAT_BASE_URL=${GOLEM_CHAT_BASE_URL:-}
+      - GOLEM_CHAT_API_KEY=${GOLEM_CHAT_API_KEY:-}
+      - GOLEM_CHAT_MODEL=${GOLEM_CHAT_MODEL:-qwen2.5:1.5b}
+      - NOETI_LOCAL_MODEL=qwen2.5:1.5b
+      - NOETI_LOCAL_MODEL_FALLBACK=qwen2.5:0.5b
+      - SITE_COMPUTE_ID=site-01
+      - NOETIS_APP_VERSION=0.5.35
+      # Admin-only POST /api/auth/signup (X-Admin-Key). Not for end-user passwords.
+      - SITE_AUTH_ADMIN_KEY=${SITE_AUTH_ADMIN_KEY:?Set SITE_AUTH_ADMIN_KEY}
+    # Network catalog keys come from env_file: .env.openrouter
+    command: ["gunicorn", "--bind", "0.0.0.0:5052", "--workers", "1", "--threads", "8", "--timeout", "300", "app:app"]
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+
+      - "traefik.http.routers.noeticompute-http.rule=Host(`noeticompute.com`) || Host(`www.noeticompute.com`)"
+      - traefik.http.routers.noeticompute-http.entrypoints=http
+      - traefik.http.routers.noeticompute-http.middlewares=noeticompute-redirect
+      - traefik.http.middlewares.noeticompute-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.noeticompute-redirect.redirectscheme.permanent=true
+
+      - "traefik.http.routers.noeticompute.rule=Host(`noeticompute.com`) || Host(`www.noeticompute.com`)"
+      - traefik.http.routers.noeticompute.entrypoints=https
+      - traefik.http.routers.noeticompute.tls=true
+      - traefik.http.routers.noeticompute.tls.certresolver=letsencrypt
+      - traefik.http.routers.noeticompute.middlewares=noeticompute-www-to-apex
+      - "traefik.http.middlewares.noeticompute-www-to-apex.redirectregex.regex=^https://www\\.noeticompute\\.com/(.*)"
+      - traefik.http.middlewares.noeticompute-www-to-apex.redirectregex.replacement=https://noeticompute.com/$$1
+      - traefik.http.middlewares.noeticompute-www-to-apex.redirectregex.permanent=true
+
+      - traefik.http.services.noeticompute.loadbalancer.server.port=5052
+    ports:
+      - "5053:5052"

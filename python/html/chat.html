@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chat — Noeti</title>
+  <meta name="description" content="Noeti Chat — decentralized and centralized models, sources, and insight graphs." />
+  <link rel="canonical" href="https://noeticompute.com/chat" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <script src="/static/theme-boot.js?v=230"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/noeti-site.css?v=230" />
+  <link rel="stylesheet" href="/static/noeti-uniform.css?v=230" />
+<link rel="stylesheet" href="/static/noeti-settings.css?v=230" />
+  <link rel="stylesheet" href="/static/brain.css?v=230" />
+  <link rel="stylesheet" href="/static/theme.css?v=230" />
+</head>
+<body class="chat-app-body">
+  <div id="authGate" class="desk-auth" style="position:relative;z-index:10000;background:#fff;">
+    <div class="desk-auth-card">
+      <a class="sidebar-brand" href="/">Noeti</a>
+      <h1>Chat</h1>
+      <p class="muted">Maker sign-in unlocks Chat, Canvas, and Editor</p>
+      <form id="authForm" class="auth-form" method="post" action="/login" autocomplete="on">
+        <input type="hidden" name="next" value="/chat" />
+        <input id="authUser" name="username" placeholder="Username" autocomplete="username" required />
+        <input id="authPass" name="password" type="password" placeholder="Password" autocomplete="current-password" required />
+        <button type="submit" id="authSubmit">Sign in</button>
+      </form>
+      <p class="auth-msg" id="authMsg"></p>
+      <p class="muted small auth-early">Early access · invite required</p>
+    </div>
+  </div>
+
+  <div data-auth-app hidden>
+  <nav class="topnav topnav-app" aria-label="Primary">
+    <a class="mark" href="/">Noeti</a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/philosophy">Philosophy</a></li>
+      <li><a href="/chat" aria-current="page">Chat</a></li>
+      <li><a href="/editor">Editor</a></li>
+      <li><a href="/canvas">Canvas</a></li>
+      <li><a href="/pricing">Pricing</a></li>
+      <li><a href="/pitch">Pitch</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+    <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <span class="spacer" aria-hidden="true"></span>
+    <button type="button" class="btn-text" id="btnAuthLogout" style="margin-right:1rem;font-size:0.75rem">Sign out</button>
+  </nav>
+
+  <div class="chat-app chat-app-3 chat-v6 chat-v7" id="chatApp" data-density="regular" data-accent="moss">
+    <button type="button" class="menu-backdrop" id="menuBackdrop" hidden aria-label="Close menu"></button>
+    <aside class="chat-sidebar" id="chatSidebar" aria-label="Conversations">
+      <div class="sidebar-top">
+        <a class="sidebar-brand" href="/">
+          <span class="brand-mark">Noeti</span>
+          <span class="brand-sub">AI where you want it</span>
+        </a>
+        <button type="button" class="btn-solid" id="btnNewChat">
+          <span class="btn-ico" aria-hidden="true">+</span>
+          New thread
+        </button>
+      </div>
+
+      <div class="sidebar-search-wrap">
+        <label class="sr-only" for="chatSearch">Search chats</label>
+        <input type="search" id="chatSearch" class="sidebar-search" placeholder="Search threads…" autocomplete="off" />
+      </div>
+
+      <div class="sidebar-section-label">Threads</div>
+      <div class="sidebar-chats" id="chatList"></div>
+
+      <div class="sidebar-foot">
+        <nav class="sidebar-links" aria-label="Site links">
+          <a href="/editor">Editor</a>
+          <a href="/canvas">Canvas</a>
+          <a href="/">Home</a>
+        </nav>
+      </div>
+    </aside>
+
+    <div class="chat-main">
+      <header class="chat-topbar">
+        <button type="button" class="btn-ghost icon" id="btnSidebar" aria-label="Toggle sidebar">
+          <span></span><span></span><span></span>
+        </button>
+
+        <a class="topbar-brand-chip" href="/" title="Noeti home">
+          <span class="brand-mark">Noeti</span>
+          <small>Chat</small>
+        </a>
+
+        <div class="model-picker-wrap">
+          <button type="button" class="model-picker-btn" id="modelPickerBtn" aria-haspopup="listbox" aria-expanded="false">
+            <span class="model-dot" aria-hidden="true"></span>
+            <span class="model-picker-meta">
+              <small>Model</small>
+              <span id="modelPickerLabel">Select model</span>
+            </span>
+            <span class="caret">▾</span>
+          </button>
+          <div class="model-menu round-drop" id="modelMenu" hidden role="listbox">
+            <div class="model-menu-toolbar">
+              <strong id="modelMenuTitle">Choose model</strong>
+              <button type="button" class="btn-chip" id="btnCloseModelMenu">Close</button>
+            </div>
+            <div class="model-menu-head">
+              <input type="search" id="modelSearch" class="model-search" placeholder="Search 300+ models…" autocomplete="off" />
+              <div class="model-filters" id="modelFilters">
+                <button type="button" class="mfilt is-on" data-filter="all">All</button>
+                <button type="button" class="mfilt" data-filter="decentralized">Decentralized</button>
+                <button type="button" class="mfilt" data-filter="centralized">Centralized</button>
+                <button type="button" class="mfilt" data-filter="free">Free</button>
+                <button type="button" class="mfilt" data-filter="node">On node</button>
+                <button type="button" class="mfilt" data-filter="fast">Fast</button>
+                <button type="button" class="mfilt" data-filter="flagship">Flagship</button>
+              </div>
+            </div>
+            <div id="modelMenuList"></div>
+            <div class="model-card-pop" id="modelCardPop" hidden></div>
+          </div>
+        </div>
+
+        <div class="desk-planes" id="deskPlanes" hidden aria-hidden="true">
+          <button type="button" class="plane-picker" data-plane="checker" id="planeCheckerBtn" title="Checker model">
+            <small>Checker</small>
+            <span id="planeCheckerLabel">Select</span>
+          </button>
+          <button type="button" class="plane-picker" data-plane="validator" id="planeValidatorBtn" title="Validator model">
+            <small>Validator</small>
+            <span id="planeValidatorLabel">Select</span>
+          </button>
+          <button type="button" class="plane-picker" data-plane="watcher" id="planeWatcherBtn" title="Watcher model">
+            <small>Watcher</small>
+            <span id="planeWatcherLabel">Select</span>
+          </button>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Hidden feature hooks (defaults on; kept for JS) -->
+          <div id="featuresMenu" hidden aria-hidden="true">
+            <input type="checkbox" id="featSources" checked />
+            <input type="checkbox" id="featGraph" checked />
+            <input type="checkbox" id="featTimestamps" checked />
+            <input type="checkbox" id="featCompactMeta" />
+            <input type="checkbox" id="featFocus" />
+            <input type="checkbox" id="featSlash" checked />
+            <input type="checkbox" id="featAutoArtifacts" checked />
+            <input type="checkbox" id="toggleWebSearch" />
+            <input type="checkbox" id="toggleCompare" />
+            <select id="compareModelB" hidden aria-hidden="true"></select>
+            <span id="compareModelBWrap" hidden></span>
+          </div>
+          <button type="button" id="btnFeatures" hidden tabindex="-1" aria-hidden="true"></button>
+
+          <div class="menu-wrap">
+            <button type="button" class="btn-chip" id="btnSettings" aria-haspopup="true" aria-expanded="false" aria-label="Settings">
+              Settings
+            </button>
+            <div class="pop-menu panel-menu settings-sheet slim-prefs prefs-smooth round-drop" id="settingsMenu" hidden>
+              <header class="prefs-head">
+                <div>
+                  <p class="prefs-kicker">Chat</p>
+                  <h2 class="prefs-title">Settings</h2>
+                </div>
+                <button type="button" class="prefs-close" data-close-menu aria-label="Close">×</button>
+              </header>
+
+              <div class="settings-scroll prefs-body">
+                <div class="set-section prefs-block">
+                  <p class="set-section-label">Desk</p>
+                  <label class="prefs-toggle">
+                    <span><strong>Show desk rail</strong><em>Witness planes + artifacts beside chat</em></span>
+                    <input type="checkbox" id="setDeskOpen" />
+                  </label>
+                  <div class="prefs-planes" style="display:flex;flex-direction:column;gap:0.35rem;margin-top:0.55rem">
+                    <button type="button" class="prefs-btn" id="setPlaneChecker">Checker model…</button>
+                    <button type="button" class="prefs-btn" id="setPlaneValidator">Validator model…</button>
+                    <button type="button" class="prefs-btn" id="setPlaneWatcher">Watcher model…</button>
+                  </div>
+                </div>
+
+                <div class="set-section prefs-block">
+                  <p class="set-section-label">Accent</p>
+                  <div class="accent-swatches" id="accentSwatches" role="group" aria-label="Accent">
+                    <button type="button" class="swatch is-on" data-accent="moss" title="Moss" aria-label="Moss"></button>
+                    <button type="button" class="swatch" data-accent="slate" title="Slate" aria-label="Slate"></button>
+                    <button type="button" class="swatch" data-accent="amber" title="Amber" aria-label="Amber"></button>
+                    <button type="button" class="swatch" data-accent="ocean" title="Ocean" aria-label="Ocean"></button>
+                  </div>
+                  <select id="setAccent" hidden>
+                    <option value="moss" selected>Moss</option>
+                    <option value="slate">Slate</option>
+                    <option value="amber">Amber</option>
+                    <option value="ocean">Ocean</option>
+                  </select>
+                  <select id="setDensity" hidden>
+                    <option value="compact">Compact</option>
+                    <option value="regular" selected>Regular</option>
+                    <option value="roomy">Roomy</option>
+                  </select>
+                  <input type="range" id="setTemp" min="0" max="100" value="55" hidden />
+                  <em id="setTempVal" hidden>0.55</em>
+                </div>
+
+                <div class="set-section prefs-block">
+                  <p class="set-section-label">Assistant</p>
+                  <label class="prefs-field">
+                    <span>Preset</span>
+                    <select id="assistantSelect" aria-label="Assistant preset">
+                      <option value="default">Default</option>
+                    </select>
+                  </label>
+                  <textarea id="setSystemPrompt" rows="2" maxlength="2000" placeholder="Optional system prompt…" hidden></textarea>
+                </div>
+
+                <div class="set-section prefs-block">
+                  <p class="set-section-label">Behavior</p>
+                  <label class="prefs-toggle">
+                    <span><strong>Private local stack</strong><em>First-pass on-node models only · no network · no public search</em></span>
+                    <input type="checkbox" id="setPrivateRoute" />
+                  </label>
+                  <label class="prefs-toggle">
+                    <span><strong>Centralized models</strong><em>Show paid catalog routes</em></span>
+                    <input type="checkbox" id="setShowPaid" checked />
+                  </label>
+                  <label class="prefs-toggle">
+                    <span><strong>Enter to send</strong><em>Shift+Enter for a new line</em></span>
+                    <input type="checkbox" id="setEnterSend" checked />
+                  </label>
+                  <label class="prefs-toggle">
+                    <span><strong>Auto-open desk</strong><em>Show rail after each reply</em></span>
+                    <input type="checkbox" id="setAutoRail" checked />
+                  </label>
+                </div>
+
+                <div class="set-section prefs-block">
+                  <p class="set-section-label">Go</p>
+                  <div class="ns-links" style="padding:0">
+                    <a href="/editor">Editor</a>
+                    <a href="/canvas">Canvas</a>
+                    <a href="/">Home</a>
+                  </div>
+                </div>
+
+                <div class="set-section prefs-block">
+                  <p class="set-section-label">Account</p>
+                  <div class="account-row prefs-account" id="accountSignedOut">
+                    <input type="text" id="chatLoginUser" placeholder="Username" autocomplete="username" />
+                    <input type="password" id="chatLoginPass" placeholder="Password" autocomplete="current-password" />
+                    <button type="button" class="prefs-btn solid" id="btnChatLogin">Sign in</button>
+                  </div>
+                  <div class="account-row signed prefs-account-in" id="accountSignedIn" hidden>
+                    <span id="accountUserLabel">Signed in</span>
+                    <button type="button" class="prefs-btn" id="btnSyncHistory">Sync</button>
+                    <button type="button" class="prefs-btn" id="btnChatLogout">Sign out</button>
+                  </div>
+                  <p class="sync-status" id="syncStatus">Local only</p>
+                </div>
+              </div>
+
+              <div class="pop-actions prefs-foot">
+                <button type="button" class="prefs-btn" id="btnExportChat">Export</button>
+                <button type="button" class="prefs-btn" id="btnExportProof" title="Export last ProofPath packet">ProofPath</button>
+                <button type="button" class="prefs-btn danger" id="btnClearChat">Clear</button>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" class="btn-chip accent" id="btnToggleRail" hidden aria-hidden="true">Desk</button>
+          <span class="pill live" id="backendPill" title="Compute path">Node</span>
+        </div>
+      </header>
+
+      <div class="chat-stage" id="chatStage">
+        <div class="stage-atmosphere" aria-hidden="true"></div>
+        <div class="compare-pane" id="comparePane" hidden>
+          <div class="compare-head">
+            <strong>Compare</strong>
+            <span class="dim" id="compareHint">A = current model · B = Settings</span>
+          </div>
+          <div class="compare-cols">
+            <div class="compare-col" id="compareOutA"></div>
+            <div class="compare-col" id="compareOutB"></div>
+          </div>
+        </div>
+        <div class="chat-empty" id="chatEmpty">
+          <div class="empty-hero">
+            <div class="empty-orb" aria-hidden="true"></div>
+            <p class="empty-kicker">Noeti</p>
+            <h1>Chat.</h1>
+            <p id="emptyByline" class="empty-lead">AI where you want it — local when it must stay yours, sealed when you need a trail.</p>
+            <div class="empty-starters" id="emptyStarters">
+              <button type="button" class="starter" data-prompt="Explain how Where routing keeps a run on my PC.">Keep this on my PC</button>
+              <button type="button" class="starter" data-prompt="What is a ProofPath Seal, in plain language?">What is Seal?</button>
+              <button type="button" class="starter" data-prompt="Compare private-rack inference vs default cloud chat for a sensitive brief.">Private vs cloud</button>
+            </div>
+          </div>
+        </div>
+        <div class="arch-strip" id="archStrip" hidden aria-label="ProofPath architecture">
+          <span class="arch-stage" data-arch="ask">Ask</span>
+          <span class="arch-stage" data-arch="model">Model</span>
+          <span class="arch-stage" data-arch="search">Search</span>
+          <span class="arch-stage" data-arch="checker">Checker</span>
+          <span class="arch-stage" data-arch="validator">Validator</span>
+          <span class="arch-stage" data-arch="watcher">Watcher</span>
+          <span class="arch-stage" data-arch="gate">Gate</span>
+          <span class="arch-stage" data-arch="seal">Seal</span>
+          <span class="arch-route" id="archRoute">Public</span>
+        </div>
+        <div id="chatLog" class="chat-log gpt" aria-live="polite" hidden></div>
+        <div class="prov-pop" id="provPop" hidden role="dialog" aria-label="Provenance"></div>
+      </div>
+
+      <div class="composer-wrap">
+        <div class="slash-menu" id="slashMenu" hidden role="listbox"></div>
+        <div class="image-preview" id="imagePreview"></div>
+        <!-- Hidden hooks for slash / streaming (no toolbar) -->
+        <input type="file" id="chatImageInput" accept="image/*" multiple hidden />
+        <button type="button" id="toolRegen" hidden tabindex="-1" aria-hidden="true"></button>
+        <button type="button" id="toolCopy" hidden tabindex="-1" aria-hidden="true"></button>
+        <button type="button" id="toolStop" hidden tabindex="-1" aria-hidden="true"></button>
+        <form id="chatForm" class="composer glow native-composer">
+          <button type="button" class="composer-attach" id="btnAttachImage" aria-label="Attach image" title="Attach image">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+              <path d="M17 8l-5-5-5 5M12 3v12" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <textarea id="chatInput" rows="1" maxlength="8000" placeholder="Message…  (paste or drop images)" required></textarea>
+          <button id="chatSend" type="submit" aria-label="Send"><span>↑</span></button>
+        </form>
+        <div class="composer-brain-row" id="brainComposerRow">
+          <button type="button" class="brain-chip" id="btnBrainOpen" title="Second Brain — allow files">Brain</button>
+          <span id="brainComposerHint" class="composer-note" style="margin:0">Allow files · cached map for coding</span>
+        </div>
+        <p class="composer-note" id="composerNote">Attach · Brain · paste image · / for commands</p>
+      </div>
+    </div>
+
+    <aside class="artifacts-panel" id="artifactsPanel" hidden>
+      <div class="artifacts-head">
+        <h2>Artifacts</h2>
+        <button type="button" class="btn-ghost icon sm" id="btnCloseArtifacts" aria-label="Close" onclick="document.getElementById('artifactsPanel').hidden=true">×</button>
+      </div>
+      <div id="artifactsBody" class="artifacts-body"></div>
+    </aside>
+
+    <aside class="chat-rail desk-stage" id="chatRail" aria-label="Desk scene">
+      <div class="rail-head desk-stage-head">
+        <div>
+          <p class="rail-kicker">Live scene</p>
+          <h2>Desk</h2>
+        </div>
+        <div class="desk-head-meta">
+          <span class="gate" id="railGate">Waiting…</span>
+          <button type="button" class="btn-ghost icon sm" id="btnCloseRail" aria-label="Close">×</button>
+        </div>
+      </div>
+
+      <div class="desk-strip" id="deskStrip" aria-label="Desk actions">
+        <!-- Plane model names kept for JS labels (hidden); pickers live in topbar only -->
+        <span id="railPlaneChecker" hidden>—</span>
+        <span id="railPlaneValidator" hidden>—</span>
+        <span id="railPlaneWatcher" hidden>—</span>
+        <button type="button" class="desk-chip desk-trail-toggle" id="btnDeskTrail" aria-pressed="false" title="Step-by-step model trail">
+          <em>Trail</em><strong id="deskTrailLabel">Off</strong>
+        </button>
+        <button type="button" class="desk-chip" id="btnDeskToCanvas" title="Open this Desk run on Canvas">
+          <em>Canvas</em><strong>Open</strong>
+        </button>
+        <p class="desk-strip-status" id="insightMeta">Send a message to map claims ↔ sources.</p>
+      </div>
+
+      <!-- Hidden hooks kept for existing JS -->
+      <div id="railPlanesBlock" hidden aria-hidden="true"><ul id="railPlanes"></ul></div>
+      <div id="railPacketBlock" hidden aria-hidden="true"><div id="railPacket"></div></div>
+      <div id="railGateBlock" hidden aria-hidden="true"><p id="railQuality" hidden></p></div>
+      <div id="railActivityBlock" hidden aria-hidden="true"><ol id="railActivity"></ol></div>
+      <div id="railJudgesBlock" hidden aria-hidden="true"><div id="railJudges"></div></div>
+      <div id="railClaimsBlock" hidden aria-hidden="true"><ul id="claimList"></ul></div>
+      <div id="railSourcesBlock" hidden aria-hidden="true"><ul id="sourceList"></ul></div>
+      <div id="insightChart" hidden></div>
+
+        <div class="desk-scene-wrap" id="railChartBlock">
+        <div class="desk-scene-floor" aria-hidden="true"></div>
+        <div class="desk-progress" id="deskProgress" hidden>
+          <p class="desk-progress-kicker">Building map</p>
+          <div class="desk-progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="deskProgressTrack">
+            <div class="desk-progress-bar" id="deskProgressBar"></div>
+          </div>
+          <ul class="desk-progress-stages" id="deskProgressStages" aria-label="Desk stages">
+            <li data-stage="search">Search</li>
+            <li data-stage="atomize">Claims</li>
+            <li data-stage="graph">Graph</li>
+            <li data-stage="judges">Planes</li>
+            <li data-stage="gate">Gate</li>
+          </ul>
+          <p class="desk-progress-label" id="deskProgressLabel">Starting…</p>
+        </div>
+        <div id="sourcingGraph" class="desk-scene" role="img" aria-label="Claims and sources graph"></div>
+        <div class="desk-zoom" id="deskZoom" aria-label="Graph zoom">
+          <button type="button" id="btnDeskZoomOut" title="Zoom out">−</button>
+          <span id="deskZoomLabel">100%</span>
+          <button type="button" id="btnDeskZoomIn" title="Zoom in">+</button>
+          <button type="button" id="btnDeskZoomReset" title="Reset view">⟲</button>
+        </div>
+        <div class="desk-legend" aria-label="Point categories">
+          <span class="lg-desk">Desk</span>
+          <span class="lg-claim-ok">Supported</span>
+          <span class="lg-claim-bad">Contested</span>
+          <span class="lg-claim">Claim</span>
+          <span class="lg-src-wiki">Wiki</span>
+          <span class="lg-src-news">News</span>
+          <span class="lg-src-web">Web</span>
+          <span class="lg-link-strong">Strong link</span>
+          <span class="lg-link-soft">Related</span>
+        </div>
+      </div>
+
+      <aside class="desk-detail" id="deskDetail" hidden>
+        <header>
+          <p class="desk-detail-kicker" id="deskDetailKind">Node</p>
+          <button type="button" class="btn-ghost icon sm" id="btnCloseDeskDetail" aria-label="Close detail">×</button>
+        </header>
+        <h3 id="deskDetailTitle"></h3>
+        <p id="deskDetailBody"></p>
+        <div id="deskDetailMeta" class="desk-detail-meta" hidden></div>
+        <a id="deskDetailLink" href="#" target="_blank" rel="noopener" hidden>Open source</a>
+        <div id="deskDetailLinks" class="desk-detail-links" hidden></div>
+        <div id="deskDetailVotes" class="desk-detail-votes"></div>
+      </aside>
+    </aside>
+  </div>
+
+  </div><!-- data-auth-app -->
+
+  <style>[data-auth-app][hidden]{display:none!important}#authGate{position:relative;z-index:10000}</style>
+  <script src="/static/auth_site.js?v=5"></script>
+  <script src="/static/site.js?v=230"></script>
+  <script src="/static/brain.js?v=220"></script>
+  <script src="/static/chat.js?v=230"></script>
+  <script src="/static/chat-plus.js?v=220"></script>
+  <script src="/static/chat-features.js?v=220"></script>
+</body>
+</html>

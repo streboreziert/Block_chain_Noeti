@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin — Noeti</title>
+  <link rel="canonical" href="https://noeticompute.com/admin" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <script src="/static/theme-boot.js?v=230"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/noeti-site.css?v=230" />
+  <link rel="stylesheet" href="/static/noeti-uniform.css?v=230" />
+  <link rel="stylesheet" href="/static/theme.css?v=230" />
+</head>
+<body class="desk-body">
+  <div class="admin-wrap">
+    <header class="admin-head">
+      <a class="sidebar-brand" href="/">Noeti</a>
+      <h1>Admin</h1>
+      <p class="muted">Ops console for models, pulls, and desk settings</p>
+    </header>
+
+    <section class="admin-card" id="adminLoginCard">
+      <h2>Admin login</h2>
+      <form id="adminLoginForm" class="stack-form">
+        <input id="adminUser" value="admin" autocomplete="username" />
+        <input id="adminPass" type="password" value="admin" autocomplete="current-password" />
+        <button type="submit" class="btn">Enter admin</button>
+      </form>
+      <p class="muted small" style="margin-top:0.75rem">Or paste legacy admin key:</p>
+      <input id="adminKey" type="password" placeholder="X-Admin-Key (optional)" />
+      <button type="button" class="btn ghost" id="btnLoadKey" style="margin-top:0.5rem">Use key</button>
+      <p class="auth-msg" id="adminMsg"></p>
+    </section>
+
+    <section class="admin-card" id="adminPanel" hidden>
+      <div id="golemConnBanner" class="muted" style="margin-bottom:1rem;padding:0.75rem 1rem;border:1px solid rgba(255,255,255,0.12);border-radius:8px">Checking network connection…</div>
+      <h2>Overview</h2>
+      <pre id="adminOverview" class="export-preview"></pre>
+
+      <h2>Network model catalog</h2>
+      <form id="openrouterForm" class="stack-form">
+        <input id="openrouterKey" type="password" placeholder="Network catalog API key" autocomplete="off" />
+        <input id="openrouterModel" placeholder="Default model id (e.g. openai/gpt-4o-mini)" />
+        <p class="muted small">Unlocks the full model list on /chat. Key stays on the server only.</p>
+        <button type="submit" class="btn">Save network catalog</button>
+      </form>
+
+      <h2>Remote network / compute</h2>
+      <form id="golemForm" class="stack-form">
+        <input id="golemUrl" placeholder="Remote chat base URL (OpenAI-compatible /v1)" />
+        <input id="golemKey" type="password" placeholder="Remote API key (optional)" />
+        <input id="golemModel" placeholder="Default model id" />
+        <button type="submit" class="btn">Save compute settings</button>
+      </form>
+
+      <h2>Usage caps (runs / month)</h2>
+      <form id="capsForm" class="stack-form caps">
+        <label>Trial <input id="capTrial" type="number" min="0" /></label>
+        <label>Solo <input id="capSolo" type="number" min="0" /></label>
+        <label>Desk <input id="capDesk" type="number" min="0" /></label>
+        <label>Newsroom <input id="capNewsroom" type="number" min="0" /></label>
+        <button type="submit" class="btn">Save caps</button>
+      </form>
+
+      <h2>Pull Ollama model</h2>
+      <form id="pullForm" class="inline-form">
+        <input id="pullModel" placeholder="e.g. llama3.2:3b" />
+        <button type="submit" class="btn">Pull</button>
+      </form>
+      <button type="button" class="btn-text" id="btnAdminLogout" style="margin-top:1rem">Log out</button>
+    </section>
+    <p class="muted small" style="text-align:center;margin-top:2rem"><a href="/desk">Desk</a> · <a href="/chat">Chat</a> · <a href="/">Home</a></p>
+  </div>
+  <script src="/static/admin.js"></script>
+</body>
+</html>

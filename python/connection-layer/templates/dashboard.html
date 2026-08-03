@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Noetis Compute — Inference + MLC Blockchain</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/research.css" />
+  <link rel="stylesheet" href="/static/app.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header class="site-header header-row">
+      <div>
+        <h1>Noetis Compute Lab</h1>
+        <p class="subtitle">
+          Decentralized AI inference over TCP sockets, coordinated by a Proof-of-Inference blockchain with MLC token rewards.
+        </p>
+      </div>
+      <div class="badge" id="chainBadge">Chain…</div>
+    </header>
+
+    <div class="stats">
+      <div class="stat"><span>Workers</span><strong id="workerCount">0</strong></div>
+      <div class="stat"><span>Blocks</span><strong id="blockCount">0</strong></div>
+      <div class="stat"><span>MLC distributed</span><strong id="mlcSupply">0</strong></div>
+      <div class="stat"><span>Status</span><strong id="runStatus">idle</strong></div>
+    </div>
+
+    <div class="panel">
+      <h2>Submit prompt</h2>
+      <div class="prompt-row">
+        <input id="promptInput" placeholder="Ask the decentralized network…" value="Explain proof-of-inference in one sentence." />
+        <button class="btn-primary" id="sendBtn" onclick="submitPrompt()">Send to network</button>
+      </div>
+      <div class="progress-bar" id="progressBar"><span></span></div>
+      <div class="actions-row" style="margin-top:10px">
+        <button onclick="startWorkers()">Start 10 workers</button>
+        <button onclick="stopWorkers()">Stop workers</button>
+      </div>
+      <p id="statusMsg" style="margin:8px 0 0;color:var(--muted);font-size:0.85rem"></p>
+      <div class="result-box" id="resultBox" hidden>
+        <strong>Consensus</strong>
+        <div id="consensusText" style="margin:6px 0 10px"></div>
+        <div id="workerResults" style="font-family:var(--mono);font-size:0.78rem"></div>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="active" data-tab="network" onclick="switchTab('network')">Network</button>
+      <button data-tab="blockchain" onclick="switchTab('blockchain')">Blockchain</button>
+      <button data-tab="mlc" onclick="switchTab('mlc')">MLC ledger</button>
+      <button data-tab="architecture" onclick="switchTab('architecture')">Architecture</button>
+    </div>
+
+    <div id="tab-network" class="tab-panel active">
+      <div class="grid-wide">
+        <div class="panel">
+          <h2>Socket network</h2>
+          <svg id="networkSvg" viewBox="0 0 600 400"></svg>
+          <div class="users-grid" id="workerCards"></div>
+        </div>
+        <div class="panel">
+          <h2>Protocol log</h2>
+          <div class="log" id="eventLog">Waiting…</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-blockchain" class="tab-panel">
+      <div class="panel">
+        <h2>Proof-of-Inference chain</h2>
+        <p style="margin:0 0 12px;color:var(--muted);font-size:0.85rem">
+          Each block records a verified inference task, worker responses, consensus, and MLC distribution.
+          Replaces wasteful hash mining with useful AI work.
+        </p>
+        <div id="chainBlocks"></div>
+      </div>
+    </div>
+
+    <div id="tab-mlc" class="tab-panel">
+      <div class="panel">
+        <h2>MLC transactions</h2>
+        <div id="txLog" class="log">Loading…</div>
+      </div>
+    </div>
+
+    <div id="tab-architecture" class="tab-panel">
+      <div class="panel" id="archPanel">Loading…</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const CX = 300, CY = 200, R = 140;
+    let lastData = null;
+
+    function switchTab(name) {
+      document.querySelectorAll(".tab-bar button").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.tab === name);
+      });
+      document.querySelectorAll(".tab-panel").forEach((panel) => {
+        panel.classList.toggle("active", panel.id === `tab-${name}`);
+      });
+    }
+
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.add("show");
+      setTimeout(() => el.classList.remove("show"), 3000);
+    }
+
+    function nodePosition(index, total) {
+      const angle = (index / total) * Math.PI * 2 - Math.PI / 2;
+      return { x: CX + R * Math.cos(angle), y: CY + R * Math.sin(angle) };
+    }
+
+    function renderNetwork(data) {
+      const workers = data.workers || [];
+      const inferring = !!data.running_task;
+      const n = workers.length;
+      let html = "";
+
+      html += `<rect x="${CX-48}" y="${CY-20}" width="96" height="40" class="node-coord" />`;
+      html += `<text class="node-label" x="${CX}" y="${CY-2}" text-anchor="middle">coordinator</text>`;
+      html += `<text class="node-sub" x="${CX}" y="${CY+12}" text-anchor="middle">blockchain + sockets</text>`;
+
+      workers.forEach((worker, i) => {
+        const pos = nodePosition(i, Math.max(n, 1));
+        const linkCls = inferring ? "link active" : "link";
+        html += `<line class="${linkCls}" x1="${CX}" y1="${CY}" x2="${pos.x}" y2="${pos.y}" />`;
+        const cls = worker.status === "inferring" ? "inferring" : "online";
+        html += `<circle cx="${pos.x}" cy="${pos.y}" r="22" class="node-worker ${cls}" />`;
+        html += `<text class="node-label" x="${pos.x}" y="${pos.y-2}" text-anchor="middle">${worker.worker_id}</text>`;
+        html += `<text class="node-sub" x="${pos.x}" y="${pos.y+12}" text-anchor="middle">${worker.mlc_balance?.toFixed(1) || 0} MLC</text>`;
+      });
+
+      document.getElementById("networkSvg").innerHTML = html;
+
+      document.getElementById("workerCards").innerHTML = workers.map((w) => `
+        <div class="user-card">
+          <div class="name">
+            <span class="status-dot ${w.status === "inferring" ? "training" : "online"}"></span>${w.worker_id}
+          </div>
+          <div class="meta">${w.model}</div>
+          <div class="meta mlc-tag">${w.mlc_balance?.toFixed(2) || 0} MLC</div>
+          <div class="meta">${w.last_action}</div>
+        </div>
+      `).join("") || '<p class="empty">No workers connected.</p>';
+
+      document.getElementById("workerCount").textContent = data.worker_count || 0;
+      document.getElementById("blockCount").textContent = data.blockchain?.length || 0;
+      document.getElementById("mlcSupply").textContent = (data.mlc_supply_distributed || 0).toFixed(1);
+      document.getElementById("runStatus").textContent = data.running_task ? "inferring" : "idle";
+
+      const badge = document.getElementById("chainBadge");
+      if (data.blockchain?.valid) {
+        badge.textContent = `Chain valid · ${data.blockchain.length} blocks`;
+        badge.className = "badge ok";
+      } else {
+        badge.textContent = data.ollama_available === false ? "Ollama offline" : "Chain";
+        badge.className = data.ollama_available === false ? "badge invalid" : "badge";
+      }
+
+      document.getElementById("eventLog").innerHTML = (data.events || []).slice().reverse().map((e) => `
+        <div class="e ${e.kind}">[${e.time}] ${e.message}</div>
+      `).join("") || "No events yet.";
+
+      const blocks = data.blockchain?.blocks || [];
+      document.getElementById("chainBlocks").innerHTML = blocks.map((b) => `
+        <article class="block-card">
+          <div class="block-top">
+            <span class="block-index">Block #${b.index}</span>
+            <span class="block-time">${b.time}</span>
+          </div>
+          <div class="block-data">${b.data}</div>
+          <div class="metrics">
+            <span>Task: ${b.proof.task_id}</span>
+            <span>MLC: ${b.proof.mlc_distributed}</span>
+            <span>Workers: ${b.proof.workers_matched}/${b.proof.workers_responded}</span>
+          </div>
+          <div class="hash">hash: ${b.hash_short || b.hash}</div>
+        </article>
+      `).join("") || '<p class="empty">No blocks yet. Submit a prompt to mine the first block.</p>';
+    }
+
+    async function loadTransactions() {
+      const res = await fetch("/api/transactions");
+      const data = await res.json();
+      document.getElementById("txLog").innerHTML = (data.transactions || []).map((tx) => `
+        <div class="tx">[${tx.time_str}] +${tx.amount} ${tx.token} → ${tx.name} — ${tx.reason}</div>
+      `).join("") || "No MLC transactions yet.";
+    }
+
+    async function loadArchitecture() {
+      const res = await fetch("/api/architecture");
+      const data = await res.json();
+      document.getElementById("archPanel").innerHTML = `
+        <h2>System architecture</h2>
+        ${data.layers.map((l) => `
+          <div class="arch-layer"><strong>${l.name}</strong><span>${l.role}</span></div>
+        `).join("")}
+        <p style="margin-top:14px;color:var(--muted);font-size:0.85rem">
+          Consensus: ${data.consensus} · Proof: ${data.proof_type} · Token: ${data.token}
+        </p>
+      `;
+    }
+
+    async function refresh() {
+      const res = await fetch("/api/status");
+      const data = await res.json();
+      lastData = data;
+      renderNetwork(data);
+    }
+
+    async function startWorkers() {
+      const res = await fetch("/api/workers/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ count: 10 }),
+      });
+      const data = await res.json();
+      const msg = document.getElementById("statusMsg");
+      if (!res.ok || data.error) {
+        msg.textContent = data.error || "Failed to start workers";
+        toast(data.error || "Failed to start workers");
+      } else {
+        msg.textContent = `${data.connected || data.worker_count} workers connected`;
+        toast("Workers online");
+      }
+      await refresh();
+    }
+
+    async function stopWorkers() {
+      await fetch("/api/workers/stop", { method: "POST" });
+      toast("Workers stopped");
+      await refresh();
+    }
+
+    async function submitPrompt() {
+      const text = document.getElementById("promptInput").value.trim();
+      if (!text) return;
+      const btn = document.getElementById("sendBtn");
+      const bar = document.getElementById("progressBar");
+      btn.disabled = true;
+      bar.classList.add("running");
+      document.getElementById("resultBox").hidden = true;
+
+      const taskCountBefore = lastData?.task_count || 0;
+
+      try {
+        const res = await fetch("/api/prompt", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Request failed");
+
+        toast("Task dispatched to workers…");
+
+        for (let i = 0; i < 120; i++) {
+          await new Promise((r) => setTimeout(r, 1000));
+          await refresh();
+          if (lastData?.dispatch_error) throw new Error(lastData.dispatch_error);
+          if ((lastData?.task_count || 0) > taskCountBefore && lastData?.last_task) {
+            const task = lastData.last_task;
+            document.getElementById("resultBox").hidden = false;
+            document.getElementById("consensusText").textContent = task.consensus_response;
+            document.getElementById("workerResults").innerHTML = (task.results || []).map((r) => `
+              <div>${r.worker_id} · ${r.inference_ms.toFixed(0)}ms · +${r.reward} MLC</div>
+            `).join("");
+            toast(`Block #${lastData.blockchain?.length - 1 || "?"} mined`);
+            await loadTransactions();
+            break;
+          }
+          if (!lastData?.running_task && i > 2 && (lastData?.task_count || 0) === taskCountBefore) {
+            throw new Error("Task failed or timed out");
+          }
+        }
+      } catch (err) {
+        toast(err.message);
+      } finally {
+        btn.disabled = false;
+        bar.classList.remove("running");
+        await refresh();
+      }
+    }
+
+    refresh();
+    loadTransactions();
+    loadArchitecture();
+    setInterval(refresh, 2000);
+    setInterval(loadTransactions, 5000);
+  </script>
+</body>
+</html>

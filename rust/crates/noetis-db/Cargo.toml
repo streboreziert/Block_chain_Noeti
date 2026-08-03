@@ -1,0 +1,13 @@
+[package]
+name = "noetis-db"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+noetis-protocol = { workspace = true }
+sqlx = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+anyhow = { workspace = true }

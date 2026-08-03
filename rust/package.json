@@ -1,0 +1,26 @@
+{
+  "name": "noetis-compute",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Noetis Compute — federated decentralized AI compute network prototype",
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @noetis/protocol && npm run build -w @noetis/crypto && npm run build -w @noetis/currency && npm run build -w @noetis/blockchain && npm run build -w @noetis/p2p && npm run build -w @noetis/scheduler && npm run build -w @noetis/ollama-client && npm run build -w @noetis/database && npm run build -w @noetis/full-node && npm run build -w @noetis/api && npm run build -w @noetis/coordinator && npm run build -w @noetis/validator && npm run build -w @noetis/node && npm run build -w @noetis/web",
+    "test": "npm run test --workspaces --if-present",
+    "dev": "docker compose up -d postgres redis && concurrently -n api,coord,val,web \"npm run dev -w @noetis/api\" \"npm run dev -w @noetis/coordinator\" \"npm run dev -w @noetis/validator\" \"npm run dev -w @noetis/web\"",
+    "lint": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "concurrently": "^8.2.2",
+    "typescript": "^5.5.0",
+    "vitest": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

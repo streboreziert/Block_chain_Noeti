@@ -1,0 +1,205 @@
+/* Shared Noeti Settings sheet — Editor / Canvas / Chat */
+.ns-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(8, 10, 14, 0.35);
+  backdrop-filter: blur(3px);
+}
+.ns-backdrop[hidden] { display: none !important; }
+
+.ns-sheet {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 90;
+  width: min(360px, 94vw);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f7f8fa;
+  color: #111;
+  border-left: 1px solid #d8dde6;
+  box-shadow: -18px 0 48px rgba(0, 0, 0, 0.12);
+  font-family: "IBM Plex Sans", sans-serif;
+}
+.ns-sheet[hidden] { display: none !important; }
+
+.ns-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 1rem 1rem 0.85rem;
+  border-bottom: 1px solid #e4e8ef;
+  flex: 0 0 auto;
+  background: #fff;
+}
+.ns-kicker {
+  margin: 0;
+  font-size: 0.58rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #8b95a8;
+  font-family: "IBM Plex Mono", monospace;
+}
+.ns-head h2 {
+  margin: 0.15rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.ns-close {
+  border: 0;
+  background: transparent;
+  font-size: 1.35rem;
+  line-height: 1;
+  color: #8b95a8;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem;
+}
+.ns-close:hover { color: #111; }
+
+.ns-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0.75rem 1rem 1.25rem;
+}
+
+.ns-section {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #e8ecf2;
+}
+.ns-section:last-child { border-bottom: 0; }
+.ns-label {
+  margin: 0 0 0.55rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8b95a8;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.ns-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.ns-btn {
+  border: 1px solid #cfd6e0;
+  background: #fff;
+  font: inherit;
+  font-size: 0.78rem;
+  padding: 0.4rem 0.65rem;
+  cursor: pointer;
+  color: #334155;
+}
+.ns-btn:hover { border-color: #111; color: #111; }
+.ns-btn.is-on {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+.ns-btn.block {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.ns-toggle {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0;
+  cursor: pointer;
+}
+.ns-toggle span {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+.ns-toggle strong {
+  font-size: 0.84rem;
+  font-weight: 560;
+  color: #111;
+}
+.ns-toggle em {
+  font-style: normal;
+  font-size: 0.72rem;
+  color: #6b778c;
+  line-height: 1.35;
+}
+.ns-toggle input {
+  margin-top: 0.2rem;
+  flex: 0 0 auto;
+}
+.ns-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.72rem;
+  color: #6b778c;
+  line-height: 1.4;
+}
+.ns-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.ns-links a {
+  color: #111;
+  text-decoration: none;
+  font-size: 0.84rem;
+  padding: 0.35rem 0;
+}
+.ns-links a:hover { color: #0d9488; }
+
+/* Dark surfaces when parent uses black theme */
+.editor-body[data-theme="black"] .ns-sheet,
+.canvas-body[data-theme="black"] .ns-sheet {
+  background: #0e1218;
+  color: #e8eef6;
+  border-left-color: #243041;
+  box-shadow: -18px 0 48px rgba(0, 0, 0, 0.55);
+}
+.editor-body[data-theme="black"] .ns-head,
+.canvas-body[data-theme="black"] .ns-head {
+  background: #121821;
+  border-bottom-color: #1a222e;
+}
+.editor-body[data-theme="black"] .ns-close:hover,
+.canvas-body[data-theme="black"] .ns-close:hover { color: #e8eef6; }
+.editor-body[data-theme="black"] .ns-section,
+.canvas-body[data-theme="black"] .ns-section { border-bottom-color: #1a222e; }
+.editor-body[data-theme="black"] .ns-btn,
+.canvas-body[data-theme="black"] .ns-btn {
+  background: #121821;
+  border-color: #243041;
+  color: #9aa6b8;
+}
+.editor-body[data-theme="black"] .ns-btn.is-on,
+.canvas-body[data-theme="black"] .ns-btn.is-on {
+  background: #2dd4bf;
+  color: #041016;
+  border-color: #2dd4bf;
+}
+.editor-body[data-theme="black"] .ns-toggle strong,
+.canvas-body[data-theme="black"] .ns-toggle strong { color: #e8eef6; }
+.editor-body[data-theme="black"] .ns-links a,
+.canvas-body[data-theme="black"] .ns-links a { color: #e8eef6; }
+
+.ns-open-btn {
+  border: 1px solid currentColor;
+  background: transparent;
+  font: inherit;
+  font-size: 0.72rem;
+  font-family: "IBM Plex Mono", monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.55rem;
+  cursor: pointer;
+  opacity: 0.85;
+}
+.ns-open-btn:hover { opacity: 1; }

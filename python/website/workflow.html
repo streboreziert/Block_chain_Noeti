@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Workflow — Noeti</title>
+  <meta name="description" content="Noeti newsroom workflow: internet search, sourcing graph, multi-model judges." />
+  <link rel="canonical" href="https://noeticompute.com/workflow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/noeti-site.css" />
+</head>
+<body>
+  <nav class="topnav" aria-label="Primary">
+    <a class="mark" href="/">Noeti</a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/philosophy">Philosophy</a></li>
+      <li><a href="/chat">Chat</a></li>
+      <li><a href="/workflow" aria-current="page">Workflow</a></li>
+      <li><a href="/pricing">Pricing</a></li>
+      <li><a href="/whitepaper">Whitepaper</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+    <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <span class="spacer" aria-hidden="true"></span>
+  </nav>
+
+  <main class="page">
+    <div class="page-inner wide">
+      <h1 class="page-title">Newsroom workflow</h1>
+      <p class="page-byline">Animated local desk · search · sourcing graph · multi-judge settings · who did what</p>
+
+      <ol class="wf-pipeline" id="wfPipeline" aria-label="Workflow stages">
+        <li data-stage="search"><span class="wf-pip-dot"></span><em>Search</em></li>
+        <li data-stage="atomize"><span class="wf-pip-dot"></span><em>Atomize</em></li>
+        <li data-stage="graph"><span class="wf-pip-dot"></span><em>Graph</em></li>
+        <li data-stage="judges"><span class="wf-pip-dot"></span><em>Judges</em></li>
+        <li data-stage="gate"><span class="wf-pip-dot"></span><em>Gate</em></li>
+      </ol>
+
+      <details class="wf-settings" id="wfSettings" open>
+        <summary>Multi-judge settings</summary>
+        <p class="dim wf-settings-note">Toggle which models sit on the panel. Each judge sees the same claim + sources, then votes independently.</p>
+        <div class="wf-judge-toggles" id="wfJudgeToggles"></div>
+      </details>
+
+      <form id="wfForm" class="wf-form">
+        <textarea id="wfQuery" rows="4" maxlength="6000" placeholder="Paste a claim, paragraph, or question for the desk…" required></textarea>
+        <button type="submit" class="btn" id="wfRun">Run workflow</button>
+      </form>
+      <p class="auth-msg" id="wfMsg"></p>
+
+      <div id="wfLive" class="wf-live" hidden>
+        <div class="wf-live-bar"><span id="wfLivePulse"></span><em id="wfLiveLabel">Standing by</em></div>
+      </div>
+
+      <div id="wfSteps" class="wf-steps" hidden></div>
+      <div id="wfGate" class="gate" hidden></div>
+
+      <section id="wfActivity" class="wf-activity" hidden>
+        <h2>Who did what</h2>
+        <ol id="wfActivityList" class="wf-activity-list"></ol>
+      </section>
+
+      <div class="wf-grid" id="wfGrid" hidden>
+        <section>
+          <h2>Sources</h2>
+          <ul id="wfSources" class="source-list"></ul>
+        </section>
+        <section>
+          <h2>Sourcing graph</h2>
+          <div id="wfGraph" class="wf-graph"></div>
+        </section>
+      </div>
+
+      <section id="wfJudges" class="wf-judges" hidden>
+        <h2>Judge panel · verdicts</h2>
+        <div id="wfJudgeBoard"></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <p><a href="mailto:dev@noeticompute.com">dev@noeticompute.com</a> · Worker model qwen2.5:0.5b</p>
+  </footer>
+  <script src="/static/site.js"></script>
+  <script src="/static/workflow.js"></script>
+</body>
+</html>

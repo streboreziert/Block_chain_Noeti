@@ -1,0 +1,17 @@
+# Multi-stage Rust build for Noetis Compute
+FROM rust:1-bookworm AS builder
+WORKDIR /app
+COPY Cargo.toml Cargo.lock ./
+COPY crates ./crates
+RUN cargo build --release -p noetis-api -p noetis-coordinator -p noetis-validator -p noetis-full-node -p noetis-node -p noetis-web
+
+FROM debian:bookworm-slim AS runtime
+RUN apt-get update && apt-get install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY --from=builder /app/target/release/noetis-api /usr/local/bin/
+COPY --from=builder /app/target/release/noetis-coordinator /usr/local/bin/
+COPY --from=builder /app/target/release/noetis-validator /usr/local/bin/
+COPY --from=builder /app/target/release/noetis-full-node /usr/local/bin/
+COPY --from=builder /app/target/release/noetis-node /usr/local/bin/
+COPY --from=builder /app/target/release/noetis-web /usr/local/bin/
+ENV RUST_LOG=info

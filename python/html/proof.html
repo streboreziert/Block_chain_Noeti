@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>ProofPath — Noeti</title>
+  <meta name="description" content="Open a sealed Noeti ProofPath run — where it ran, what it claimed, integrity digest." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <script src="/static/theme-boot.js?v=230"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/noeti-site.css?v=230" />
+<style>
+    :root {
+      --ink: #1a1a1a;
+      --muted: #6e6e6e;
+      --faint: #9a9a9a;
+      --line: #ececec;
+      --soft: #f6f6f4;
+      --font: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, monospace;
+    }
+    * { box-sizing: border-box; }
+    body.proof-page {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      color: var(--ink);
+      background:
+        radial-gradient(rgba(26,26,26,0.05) 1px, transparent 1px),
+        #fbfbfa;
+      background-size: 22px 22px, auto;
+    }
+    .proof-wrap {
+      width: min(720px, calc(100% - 2rem));
+      margin: 0 auto;
+      padding: 2.5rem 0 4rem;
+    }
+    .proof-brand {
+      display: inline-block;
+      text-decoration: none;
+      color: var(--ink);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 1.5rem;
+    }
+    .proof-kicker {
+      margin: 0;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--faint);
+      font-weight: 600;
+    }
+    .proof-wrap h1 {
+      margin: 0.35rem 0 0.5rem;
+      font-size: clamp(1.5rem, 3vw, 2rem);
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      line-height: 1.2;
+    }
+    .proof-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin: 1rem 0 1.5rem;
+    }
+    .proof-chip {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+    .proof-chip.strong {
+      background: #1a1a1a;
+      border-color: #1a1a1a;
+      color: #fff;
+    }
+    .proof-card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 1.1rem 1.2rem;
+      margin-bottom: 0.85rem;
+    }
+    .proof-card h2 {
+      margin: 0 0 0.55rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--faint);
+      font-weight: 600;
+    }
+    .proof-card p, .proof-card li {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+    .proof-card ul { margin: 0; padding-left: 1.1rem; }
+    .proof-card li + li { margin-top: 0.35rem; }
+    .proof-digest {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      word-break: break-all;
+      color: var(--muted);
+      background: var(--soft);
+      border-radius: 10px;
+      padding: 0.7rem 0.8rem;
+    }
+    .proof-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.4rem;
+    }
+    .proof-actions a, .proof-actions button {
+      appearance: none;
+      border: 1px solid #1a1a1a;
+      background: #1a1a1a;
+      color: #fff;
+      text-decoration: none;
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 560;
+      padding: 0.65rem 1rem;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+    .proof-actions a.ghost, .proof-actions button.ghost {
+      background: #fff;
+      color: #1a1a1a;
+    }
+    .proof-err {
+      color: #a33;
+      margin-top: 1rem;
+    }
+    .proof-loading { color: var(--muted); }
+  </style>
+  <link rel="stylesheet" href="/static/theme.css?v=230" />
+</head>
+<body class="proof-page">
+  <main class="proof-wrap">
+    <a class="proof-brand" href="/">Noeti</a>
+    <p class="proof-kicker">ProofPath</p>
+    <h1 id="proofTitle">Loading sealed run…</h1>
+    <div class="proof-meta" id="proofMeta"></div>
+    <div id="proofBody" class="proof-loading">Fetching packet…</div>
+    <div class="proof-actions" id="proofActions" hidden>
+      <a id="btnReplay" href="/canvas">Replay on Canvas</a>
+      <a class="ghost" id="btnExport" href="#">Export JSON</a>
+      <button type="button" class="ghost" id="btnCopy">Copy link</button>
+    </div>
+    <p class="proof-err" id="proofErr" hidden></p>
+  </main>
+  <script>
+    (function () {
+      var parts = location.pathname.split("/").filter(Boolean);
+      var runId = parts[parts.length - 1] || "";
+      if (runId === "proof") runId = "";
+      var q = new URLSearchParams(location.search);
+      if (q.get("id")) runId = q.get("id");
+
+      var title = document.getElementById("proofTitle");
+      var meta = document.getElementById("proofMeta");
+      var body = document.getElementById("proofBody");
+      var actions = document.getElementById("proofActions");
+      var err = document.getElementById("proofErr");
+      var btnReplay = document.getElementById("btnReplay");
+      var btnExport = document.getElementById("btnExport");
+      var btnCopy = document.getElementById("btnCopy");
+
+      function chip(text, strong) {
+        var s = document.createElement("span");
+        s.className = "proof-chip" + (strong ? " strong" : "");
+        s.textContent = text;
+        return s;
+      }
+
+      function card(h, html) {
+        return '<section class="proof-card"><h2>' + h + "</h2>" + html + "</section>";
+      }
+
+      function esc(s) {
+        return String(s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      if (!runId) {
+        title.textContent = "Missing proof id";
+        body.textContent = "";
+        err.hidden = false;
+        err.textContent = "Open a sealed link like /proof/pp_…";
+        return;
+      }
+
+      fetch("/api/proofpath/runs/" + encodeURIComponent(runId), { cache: "no-store" })
+        .then(function (res) { return res.json().then(function (data) { return { res: res, data: data }; }); })
+        .then(function (out) {
+          if (!out.res.ok || !out.data.ok || !out.data.packet) {
+            throw new Error((out.data && out.data.message) || "Proof not found");
+          }
+          var p = out.data.packet;
+          title.textContent = p.query || "Sealed Canvas run";
+          meta.appendChild(chip(p.run_id || runId, true));
+          if (p.routing === "private_local") meta.appendChild(chip("Private · on-node"));
+          else meta.appendChild(chip("Public / mesh"));
+          if (p.quality && p.quality.label) meta.appendChild(chip(p.quality.label));
+          if (p.worker_model) meta.appendChild(chip(p.worker_model));
+          if (p.summary && p.summary.publish_gate) meta.appendChild(chip("Gate · " + p.summary.publish_gate));
+
+          var claims = (p.claims || p.claims_raw || []).map(function (c) {
+            return typeof c === "string" ? c : (c.text || c.claim || "");
+          }).filter(Boolean);
+          var digest = (p.integrity && (p.integrity.sha256 || p.integrity.digest)) || "";
+          var html = "";
+          html += card("What ran", "<p>" + esc(p.note || "Sealed from Noeti Canvas.") + "</p>");
+          if (claims.length) {
+            html += card("Claims / output", "<ul>" + claims.slice(0, 8).map(function (c) {
+              return "<li>" + esc(c) + "</li>";
+            }).join("") + "</ul>");
+          }
+          if (p.canvas && p.canvas.nodes && p.canvas.nodes.length) {
+            html += card("Board snapshot", "<p>" + p.canvas.nodes.length + " blocks · " + ((p.canvas.edges || []).length) + " wires · replayable on Canvas</p>");
+          }
+          if (digest) {
+            html += card("Integrity", '<div class="proof-digest">' + esc(digest) + "</div>");
+          }
+          body.innerHTML = html;
+          body.className = "";
+          actions.hidden = false;
+          btnReplay.href = "/canvas?proof=" + encodeURIComponent(p.run_id || runId);
+          btnExport.href = "/api/proofpath/runs/" + encodeURIComponent(p.run_id || runId) + "/export?format=json";
+          btnCopy.addEventListener("click", function () {
+            var url = location.href;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(url).then(function () {
+                btnCopy.textContent = "Copied";
+                setTimeout(function () { btnCopy.textContent = "Copy link"; }, 1400);
+              });
+            }
+          });
+        })
+        .catch(function (e) {
+          title.textContent = "Proof unavailable";
+          body.textContent = "";
+          err.hidden = false;
+          err.textContent = e.message || "Could not load proof";
+        });
+    })();
+  </script>
+</body>
+</html>

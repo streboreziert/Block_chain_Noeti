@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Privacy — Noeti</title>
+  <meta name="description" content="Architectural privacy: private routing, claim-scoped checks, no single-cloud custody." />
+  <link rel="canonical" href="https://noeticompute.com/privacy" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <script src="/static/theme-boot.js?v=230"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/noeti-site.css?v=230" />
+  <link rel="stylesheet" href="/static/noeti-uniform.css?v=230" />
+<link rel="stylesheet" href="/static/nu-ui.css?v=230" />
+  <link rel="stylesheet" href="/static/theme.css?v=230" />
+</head>
+<body>
+    <nav class="topnav nu-nav" aria-label="Primary">
+    <a class="mark" href="/">Noeti</a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/whitepaper">Whitepaper</a></li>
+      <li><a href="/chat">Chat</a></li>
+      <li><a href="/canvas">Canvas</a></li>
+      <li><a href="/pricing">Pricing</a></li>
+    </ul>
+    <a class="nu-btn nu-btn--solid nu-btn--sm nu-nav-cta" href="/canvas?sample=where">Open</a>
+    <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </nav>
+
+  <main class="page">
+    <div class="page-inner">
+      <h1 class="page-title">Privacy</h1>
+      <p class="page-byline">Architecture, not a brochure</p>
+      <div class="page-body">
+        <p>
+          Most investigative AI tools offer strong workflows on one centralized cloud.
+          That means drafts, sources, and claim graphs usually sit under one operator’s
+          legal and technical perimeter.
+        </p>
+        <p>
+          Noeti argues a different privacy: independence. Sensitive work can use private
+          or customer-controlled compute. Verification is multi-node. Witnesses receive
+          claim-scoped payloads — not the entire investigation by default.
+        </p>
+        <h2>Private routing</h2>
+        <p>
+          Source-bearing jobs stay on private pools or customer nodes. Public mesh is for
+          non-sensitive checks — not raw tip dumps to random peers.
+        </p>
+        <h2>Claim-scoped disclosure</h2>
+        <p>
+          Multi-witness verification sees atoms of claims, not the whole binder. Less
+          surface area for accidental leakage.
+        </p>
+        <h2>Separation of identity and compute</h2>
+        <p>
+          Relay design separates who asked from who computed. Hash-only proofs can show
+          a check happened without storing tip text on a public ledger.
+        </p>
+        <h2>Honest hybrid</h2>
+        <p>
+          Where certifications require AWS or similar, use them. Where independence and
+          source protection matter, do not make one vendor the only brain.
+        </p>
+        <div class="cta-row">
+          <a href="/philosophy">Philosophy</a>
+          <a href="/contact">Talk to us</a>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <p><a href="mailto:dev@noeticompute.com">dev@noeticompute.com</a> · Independent claim verification</p>
+  </footer>
+  <script src="/static/site.js?v=230"></script>
+</body>
+</html>

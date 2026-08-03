@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Desk — Noeti</title>
+  <meta name="description" content="Noeti Desk — auth, metered ProofPath, witnesses, export, billing." />
+  <link rel="canonical" href="https://noeticompute.com/desk" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <script src="/static/theme-boot.js?v=230"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/noeti-site.css?v=230" />
+  <link rel="stylesheet" href="/static/noeti-uniform.css?v=230" />
+  <link rel="stylesheet" href="/static/theme.css?v=230" />
+</head>
+<body class="desk-body">
+  <div id="authGate" class="desk-auth">
+    <div class="desk-auth-card">
+      <a class="sidebar-brand" href="/">Noeti</a>
+      <h1>Desk</h1>
+      <p class="muted">ProofPath workspace · seats · metered runs</p>
+      <p class="muted small">Create a desk account or log in. Chat and Canvas use maker login (admin).</p>
+      <div class="auth-tabs">
+        <button type="button" class="active" data-tab="login">Log in</button>
+        <button type="button" data-tab="signup">Sign up</button>
+      </div>
+      <form id="authForm" class="auth-form">
+        <input id="authUser" name="username" placeholder="Username" autocomplete="username" required />
+        <input id="authPass" name="password" type="password" placeholder="Password" autocomplete="current-password" required />
+        <button type="submit" id="authSubmit">Continue</button>
+      </form>
+      <p class="auth-msg" id="authMsg"></p>
+      <p class="muted small"><a href="/pricing">Plans</a> · <a href="/chat">Chat</a> · <a href="/">Home</a></p>
+    </div>
+  </div>
+
+  <div id="deskApp" class="desk-app" hidden>
+    <aside class="desk-side">
+      <div class="sidebar-top">
+        <a class="sidebar-brand" href="/">Noeti</a>
+        <div class="desk-user" id="deskUser"></div>
+      </div>
+      <nav class="desk-nav">
+        <button type="button" class="nav-btn active" data-view="overview">Overview</button>
+        <button type="button" class="nav-btn" data-view="proofpath">ProofPath</button>
+        <button type="button" class="nav-btn" data-view="witness">Witness board</button>
+        <button type="button" class="nav-btn" data-view="billing">Billing & seats</button>
+        <button type="button" class="nav-btn" data-view="export">Export</button>
+      </nav>
+      <div class="desk-side-foot">
+        <div id="quotaBar" class="quota"></div>
+        <button type="button" class="btn-text" id="btnLogout">Log out</button>
+        <a href="/chat">Chat</a>
+      </div>
+    </aside>
+
+    <main class="desk-main">
+      <section class="view active" id="view-overview">
+        <h1>Overview</h1>
+        <div class="stat-row" id="overviewStats"></div>
+        <p class="lede">Upload a document, atomize claims, run multi-witness checks, then export the audit trail. Runs are metered by plan.</p>
+        <div class="cta-row">
+          <button type="button" class="btn" data-goto="proofpath">Start ProofPath</button>
+          <button type="button" class="btn ghost" data-goto="billing">Upgrade plan</button>
+        </div>
+      </section>
+
+      <section class="view" id="view-proofpath">
+        <h1>ProofPath</h1>
+        <p class="lede">Document → atomic claims (counts as 1 run).</p>
+        <form id="atomizeForm" class="stack-form">
+          <input id="docTitle" placeholder="Project title" maxlength="120" />
+          <textarea id="docBody" rows="10" placeholder="Paste article, memo, or notes…" required></textarea>
+          <label class="file-lab">Or upload .txt / .md
+            <input type="file" id="docFile" accept=".txt,.md,.markdown,text/plain" />
+          </label>
+          <button type="submit" class="btn">Atomize claims</button>
+        </form>
+        <p class="auth-msg" id="atomizeMsg"></p>
+        <div id="projectList" class="project-list"></div>
+      </section>
+
+      <section class="view" id="view-witness">
+        <h1>Witness board</h1>
+        <p class="lede">Multi-witness dashboard for the selected project (counts as 1 run).</p>
+        <div class="row-actions">
+          <select id="projectSelect"></select>
+          <button type="button" class="btn" id="btnWitness">Run witnesses</button>
+        </div>
+        <div id="gateBadge" class="gate"></div>
+        <div id="witnessBoard" class="witness-board"></div>
+      </section>
+
+      <section class="view" id="view-billing">
+        <h1>Billing & seats</h1>
+        <div id="planGrid" class="plan-grid"></div>
+        <h2>Seats</h2>
+        <form id="seatForm" class="inline-form">
+          <input id="seatUser" placeholder="Teammate username" maxlength="32" />
+          <button type="submit" class="btn">Add seat</button>
+        </form>
+        <ul id="seatList" class="seat-list"></ul>
+        <p class="auth-msg" id="billingMsg"></p>
+      </section>
+
+      <section class="view" id="view-export">
+        <h1>Export audit trail</h1>
+        <div class="row-actions">
+          <select id="exportSelect"></select>
+          <button type="button" class="btn" id="btnExportJson">Download JSON</button>
+          <button type="button" class="btn ghost" id="btnExportTxt">Download TXT</button>
+        </div>
+        <pre id="exportPreview" class="export-preview"></pre>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/desk.js?v=86"></script>
+</body>
+</html>

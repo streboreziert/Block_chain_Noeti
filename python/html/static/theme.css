@@ -1,0 +1,659 @@
+/* Noeti — consistent white / black (grey) theme
+   Load this stylesheet LAST so it wins over site/uniform/app CSS. */
+
+/* —— Shared tokens (white default) —— */
+:root,
+html[data-theme="white"] {
+  color-scheme: light;
+  --bg: #ffffff;
+  --bg-soft: #f4f5f7;
+  --ink: #111111;
+  --muted: #5b667a;
+  --line: #d8dee8;
+  --soft: #f7f8fa;
+  --panel: #ffffff;
+  --panel-2: #f4f5f7;
+  --accent: #0d9488;
+  --accent-2: #14b8a6;
+  --moss: #0d9488;
+  --moss-2: #14b8a6;
+  --accent-soft: rgba(13, 148, 136, 0.1);
+  --btn-bg: #111111;
+  --btn-ink: #ffffff;
+  --btn-ghost-bg: #ffffff;
+  --btn-ghost-ink: #111111;
+  --input-bg: #ffffff;
+  --input-ink: #111111;
+  --chip-bg: #ffffff;
+  --chip-ink: #333333;
+  --nu-bg: #ffffff;
+  --nu-soft: #f4f7fb;
+  --nu-ink: #0b1220;
+  --nu-muted: #5b667a;
+  --nu-line: #d8dee8;
+  --nu-accent: #0d9488;
+  --cv-ink: #1a1a1a;
+  --cv-muted: #6e6e6e;
+  --cv-faint: #9a9a9a;
+  --cv-line: #ececec;
+  --cv-soft: #f6f6f4;
+  --cv-panel: #ffffff;
+  --cv-board: #fbfbfa;
+  --cv-sticky: #fff3a0;
+  --cv-sticky-ink: #3d3a1f;
+  --cv-ai: #f3f1e7;
+}
+
+/* —— Black mode: dark grey, not harsh white —— */
+html[data-theme="black"] {
+  color-scheme: dark;
+  --bg: #0b0e13 !important;
+  --bg-soft: #12161d !important;
+  --ink: #d7dee8 !important;
+  --muted: #8b97a8 !important;
+  --line: #2a3444 !important;
+  --soft: #161b22 !important;
+  --panel: #12161d !important;
+  --panel-2: #161b22 !important;
+  --accent: #5eead4 !important;
+  --accent-2: #99f6e4 !important;
+  --moss: #5eead4 !important;
+  --moss-2: #99f6e4 !important;
+  --accent-soft: rgba(94, 234, 212, 0.12) !important;
+  --btn-bg: #1a222e !important;
+  --btn-ink: #e8eef6 !important;
+  --btn-ghost-bg: #161b22 !important;
+  --btn-ghost-ink: #d7dee8 !important;
+  --input-bg: #161b22 !important;
+  --input-ink: #d7dee8 !important;
+  --chip-bg: #1a222e !important;
+  --chip-ink: #c8d0dc !important;
+  --nu-bg: #0b0e13 !important;
+  --nu-soft: #12161d !important;
+  --nu-ink: #d7dee8 !important;
+  --nu-muted: #8b97a8 !important;
+  --nu-line: #2a3444 !important;
+  --nu-accent: #5eead4 !important;
+  --cv-ink: #d7dee8 !important;
+  --cv-muted: #8b97a8 !important;
+  --cv-faint: #6b778c !important;
+  --cv-line: #2a3444 !important;
+  --cv-soft: #161b22 !important;
+  --cv-panel: #12161d !important;
+  --cv-board: #0b0e13 !important;
+  --cv-sticky: #1a222e !important;
+  --cv-sticky-ink: #d7dee8 !important;
+  --cv-ai: #161b22 !important;
+}
+
+/* —— Theme toggle —— */
+.theme-fab {
+  width: 2.2rem;
+  height: 2.2rem;
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.theme-fab:hover {
+  border-color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 6%, transparent);
+}
+.theme-fab svg { width: 1.05rem; height: 1.05rem; display: block; }
+.theme-fab .icon-sun { display: none; }
+.theme-fab .icon-moon { display: block; }
+html[data-theme="black"] .theme-fab .icon-sun { display: block; }
+html[data-theme="black"] .theme-fab .icon-moon { display: none; }
+.theme-fab.is-float {
+  position: fixed;
+  z-index: 120;
+  bottom: 2.85rem;
+  right: 1rem;
+  background: var(--panel);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(10px);
+}
+.topnav .nu-nav-end {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+}
+.topnav .nu-nav-end .theme-fab { order: 2; }
+.topnav .nu-nav-end .nu-nav-cta { order: 1; }
+
+/* —— Base document —— */
+html[data-theme="black"],
+html[data-theme="black"] body {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="white"],
+html[data-theme="white"] body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* —— Nav (marketing + apps) —— */
+html[data-theme="black"] .topnav,
+html[data-theme="black"] .topnav.nu-nav,
+html[data-theme="black"] .topnav-app {
+  background: rgba(11, 14, 19, 0.94) !important;
+  border-bottom: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="black"] .topnav a,
+html[data-theme="black"] .topnav .mark,
+html[data-theme="black"] .topnav-app a,
+html[data-theme="black"] .topnav-app .mark,
+html[data-theme="black"] .topnav-app .btn-text {
+  color: var(--ink) !important;
+}
+html[data-theme="black"] .nav-toggle span { background: var(--ink) !important; }
+html[data-theme="black"] .nu-btn {
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+  background: transparent !important;
+}
+html[data-theme="black"] .nu-btn--solid,
+html[data-theme="black"] .nu-nav-cta {
+  background: var(--btn-bg) !important;
+  color: var(--btn-ink) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="black"] .nu-btn--solid:hover,
+html[data-theme="black"] .nu-nav-cta:hover {
+  background: #222b38 !important;
+  border-color: #6b7c90 !important;
+  color: #fff !important;
+}
+
+/* —— Marketing pages —— */
+html[data-theme="black"] .page,
+html[data-theme="black"] .page-inner,
+html[data-theme="black"] .site-footer,
+html[data-theme="black"] .home-below,
+html[data-theme="black"] .pitch-deck,
+html[data-theme="black"] .pitch-deck .deck,
+html[data-theme="black"] .desk-auth,
+html[data-theme="black"] .wp-body {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="black"] .page-body,
+html[data-theme="black"] .phil-body,
+html[data-theme="black"] .price-card,
+html[data-theme="black"] .addon-card,
+html[data-theme="black"] .desk-auth-card,
+html[data-theme="black"] .wp-paper,
+html[data-theme="black"] .wp-toc {
+  background: var(--panel) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="black"] .page-title,
+html[data-theme="black"] .page-body,
+html[data-theme="black"] .page-body p,
+html[data-theme="black"] .page-body li,
+html[data-theme="black"] .page-body strong,
+html[data-theme="black"] .phil-lead,
+html[data-theme="black"] .phil-quote,
+html[data-theme="black"] h1,
+html[data-theme="black"] h2,
+html[data-theme="black"] h3,
+html[data-theme="black"] h4,
+html[data-theme="black"] p,
+html[data-theme="black"] li,
+html[data-theme="black"] label,
+html[data-theme="black"] .mark {
+  color: var(--ink) !important;
+}
+html[data-theme="black"] .page-byline,
+html[data-theme="black"] .muted,
+html[data-theme="black"] .dim,
+html[data-theme="black"] .phil-quote span,
+html[data-theme="black"] .fact-list span,
+html[data-theme="black"] .wp-kicker,
+html[data-theme="black"] .wp-note,
+html[data-theme="black"] .wp-toc a,
+html[data-theme="black"] .wp-toc-title {
+  color: var(--muted) !important;
+}
+html[data-theme="black"] a {
+  color: var(--accent) !important;
+  border-bottom-color: color-mix(in srgb, var(--accent) 35%, transparent) !important;
+}
+html[data-theme="black"] .topnav a,
+html[data-theme="black"] .topnav .mark { color: var(--ink) !important; }
+html[data-theme="black"] .phil-quote,
+html[data-theme="black"] .fact-list li { border-color: var(--line) !important; }
+
+html[data-theme="black"] body.page-home,
+html[data-theme="black"] body.page-home .home-below,
+html[data-theme="black"] body.page-home .home-products {
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="black"] body.page-home .punch,
+html[data-theme="black"] body.page-home h1,
+html[data-theme="black"] body.page-home h2,
+html[data-theme="black"] body.page-home p {
+  color: var(--ink) !important;
+  text-shadow: none !important;
+}
+html[data-theme="black"] body.page-home .theme-fab {
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+/* —— Shared controls —— */
+html[data-theme="black"] button,
+html[data-theme="black"] .btn-chip,
+html[data-theme="black"] .btn-ghost,
+html[data-theme="black"] .btn-solid,
+html[data-theme="black"] .ns-open-btn,
+html[data-theme="black"] .ns-btn,
+html[data-theme="black"] .prefs-btn,
+html[data-theme="black"] .mfilt,
+html[data-theme="black"] .model-picker-btn,
+html[data-theme="black"] .plane-picker,
+html[data-theme="black"] .brain-chip,
+html[data-theme="black"] .icon-btn,
+html[data-theme="black"] .ed-icon-btn,
+html[data-theme="black"] .ed-menu-btn,
+html[data-theme="black"] .cv-tool,
+html[data-theme="black"] .cv-dock-btn,
+html[data-theme="black"] .cv-job,
+html[data-theme="black"] .cv-lang-chip {
+  background: var(--btn-ghost-bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--btn-ghost-ink) !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+html[data-theme="black"] .btn-solid,
+html[data-theme="black"] #btnNewChat,
+html[data-theme="black"] .chat-v6 .btn-solid,
+html[data-theme="black"] .chat-v7 .btn-solid,
+html[data-theme="black"] .cv-dock-btn.primary,
+html[data-theme="black"] .cv-tool.run,
+html[data-theme="black"] .cv-tool.primary,
+html[data-theme="black"] .cv-gen-cta {
+  background: var(--btn-bg) !important;
+  color: var(--btn-ink) !important;
+  border-color: var(--line) !important;
+}
+html[data-theme="black"] button:hover,
+html[data-theme="black"] .btn-chip:hover,
+html[data-theme="black"] .btn-ghost:hover,
+html[data-theme="black"] .btn-solid:hover,
+html[data-theme="black"] #btnNewChat:hover,
+html[data-theme="black"] .ns-open-btn:hover,
+html[data-theme="black"] .model-picker-btn:hover,
+html[data-theme="black"] .plane-picker:hover,
+html[data-theme="black"] .cv-tool:hover,
+html[data-theme="black"] .cv-dock-btn:hover,
+html[data-theme="black"] .cv-job:hover {
+  background: #1f2835 !important;
+  border-color: #6b7c90 !important;
+  color: #e8eef6 !important;
+}
+html[data-theme="black"] input,
+html[data-theme="black"] textarea,
+html[data-theme="black"] select,
+html[data-theme="black"] .sidebar-search,
+html[data-theme="black"] .model-search,
+html[data-theme="black"] .cv-menu-search {
+  background: var(--input-bg) !important;
+  border-color: var(--line) !important;
+  color: var(--input-ink) !important;
+}
+html[data-theme="black"] input::placeholder,
+html[data-theme="black"] textarea::placeholder {
+  color: var(--muted) !important;
+}
+
+/* —— Chat app —— */
+html[data-theme="black"] .chat-app-body,
+html[data-theme="black"] .chat-app,
+html[data-theme="black"] .chat-v6,
+html[data-theme="black"] .chat-v7 {
+  --ink: var(--ink) !important;
+  --muted: var(--muted) !important;
+  --line: var(--line) !important;
+  --moss: var(--accent) !important;
+  --bone: var(--panel) !important;
+  --paper: var(--bg) !important;
+  background: var(--bg) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="black"] .chat-main,
+html[data-theme="black"] .chat-stream,
+html[data-theme="black"] .chat-empty,
+html[data-theme="black"] .chat-rail,
+html[data-theme="black"] .chat-rail.desk-stage,
+html[data-theme="black"] .desk-scene-wrap,
+html[data-theme="black"] .desk-scene,
+html[data-theme="black"] .chat-topbar,
+html[data-theme="black"] .chat-sidebar,
+html[data-theme="black"] .composer-wrap,
+html[data-theme="black"] .settings-sheet,
+html[data-theme="black"] .pop-menu,
+html[data-theme="black"] .model-menu,
+html[data-theme="black"] .prefs-panel,
+html[data-theme="black"] .panel-menu,
+html[data-theme="black"] .prov-pop {
+  background: var(--panel) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="black"] .chat-sidebar {
+  background: var(--bg-soft) !important;
+}
+html[data-theme="black"] .chat-item,
+html[data-theme="black"] .chat-v6 .chat-item,
+html[data-theme="black"] .chat-v7 .chat-item {
+  background: transparent !important;
+  color: var(--ink) !important;
+  border-color: transparent !important;
+}
+html[data-theme="black"] .chat-item:hover,
+html[data-theme="black"] .chat-item.active,
+html[data-theme="black"] .chat-v6 .chat-item.active,
+html[data-theme="black"] .chat-v7 .chat-item.active {
+  background: var(--soft) !important;
+  border-color: var(--line) !important;
+  color: #e8eef6 !important;
+}
+html[data-theme="black"] .chat-v6 .msg-content,
+html[data-theme="black"] .chat-v7 .msg-content,
+html[data-theme="black"] .msg-content {
+  color: var(--ink) !important;
+}
+html[data-theme="black"] .msg-meta,
+html[data-theme="black"] .brand-sub,
+html[data-theme="black"] .composer-note,
+html[data-theme="black"] .sidebar-section-label {
+  color: var(--muted) !important;
+}
+html[data-theme="black"] .brand-mark { color: var(--ink) !important; }
+html[data-theme="black"] .model-picker-meta small,
+html[data-theme="black"] .plane-picker small { color: var(--muted) !important; }
+html[data-theme="black"] .model-picker-meta span,
+html[data-theme="black"] .plane-picker span,
+html[data-theme="black"] #modelPickerLabel { color: var(--ink) !important; }
+
+html[data-theme="black"] .chat-v6 .composer.glow,
+html[data-theme="black"] .chat-v7 .composer.glow,
+html[data-theme="black"] .chat-v6 .native-composer,
+html[data-theme="black"] .chat-v7 .native-composer,
+html[data-theme="black"] form.composer.glow.native-composer,
+html[data-theme="black"] .native-composer {
+  background: var(--soft) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: none !important;
+  color: var(--ink) !important;
+}
+html[data-theme="black"] .native-composer:focus-within,
+html[data-theme="black"] .composer.glow:focus-within {
+  border-color: #6b7c90 !important;
+  box-shadow: none !important;
+}
+html[data-theme="black"] .native-composer textarea,
+html[data-theme="black"] #chatInput {
+  background: transparent !important;
+  color: var(--ink) !important;
+}
+html[data-theme="black"] .composer-attach,
+html[data-theme="black"] .native-composer button#chatSend {
+  background: var(--btn-bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--btn-ink) !important;
+}
+html[data-theme="black"] .brain-chip,
+html[data-theme="black"] #btnBrainOpen {
+  background: var(--chip-bg) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--chip-ink) !important;
+}
+html[data-theme="black"] .desk-detail,
+html[data-theme="black"] #deskDetail,
+html[data-theme="black"] .desk-stage-head {
+  background: var(--panel) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="black"] .desk-sphere-guide { stroke: rgba(148, 163, 184, 0.18) !important; }
+html[data-theme="black"] .desk-sphere-guide.is-core { stroke: rgba(148, 163, 184, 0.35) !important; }
+html[data-theme="black"] .desk-float-label text { fill: var(--ink) !important; }
+html[data-theme="black"] .desk-float-label rect {
+  fill: var(--panel) !important;
+  stroke: var(--line) !important;
+}
+
+/* —— Canvas —— */
+html[data-theme="black"] .canvas-body {
+  background: var(--cv-board) !important;
+  color: var(--cv-ink) !important;
+}
+html[data-theme="black"] .canvas-body::before {
+  background-image: radial-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px);
+  opacity: 0.35;
+}
+html[data-theme="black"] .cv-toolbar,
+html[data-theme="black"] .cv-rail,
+html[data-theme="black"] .cv-dock,
+html[data-theme="black"] .cv-menu,
+html[data-theme="black"] .cv-menu-panel,
+html[data-theme="black"] .cv-inspector,
+html[data-theme="black"] .cv-stage-wrap,
+html[data-theme="black"] .cv-more-menu,
+html[data-theme="black"] .cv-gen-card,
+html[data-theme="black"] #cvSurfaceFs,
+html[data-theme="black"] .cv-surface {
+  background: var(--cv-panel) !important;
+  border-color: var(--cv-line) !important;
+  color: var(--cv-ink) !important;
+}
+html[data-theme="black"] .cv-dock {
+  background: rgba(18, 22, 29, 0.96) !important;
+}
+html[data-theme="black"] .cv-node,
+html[data-theme="black"] .hunch-vibe .cv-node,
+html[data-theme="black"] .hunch-vibe .cv-node[data-type="model"],
+html[data-theme="black"] .hunch-vibe .cv-node[data-type="vision"],
+html[data-theme="black"] .hunch-vibe .cv-node[data-type="note"] {
+  background: var(--panel-2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+html[data-theme="black"] .cv-node::before { background: #6b7c90 !important; opacity: 1 !important; }
+html[data-theme="black"] .cv-node-head { border-bottom-color: var(--line) !important; }
+html[data-theme="black"] .cv-node-head .kind,
+html[data-theme="black"] .hunch-vibe .cv-node-head .kind { color: var(--muted) !important; }
+html[data-theme="black"] .cv-node textarea,
+html[data-theme="black"] .cv-node select,
+html[data-theme="black"] .cv-node input,
+html[data-theme="black"] .hunch-vibe .cv-node textarea,
+html[data-theme="black"] .hunch-vibe .cv-node select,
+html[data-theme="black"] .hunch-vibe .cv-node input {
+  background: var(--input-bg) !important;
+  border-color: var(--line) !important;
+  color: var(--input-ink) !important;
+}
+html[data-theme="black"] .cv-node .out,
+html[data-theme="black"] .hunch-vibe .cv-node .out {
+  background: var(--bg) !important;
+  border-color: var(--line) !important;
+  color: var(--muted) !important;
+}
+html[data-theme="black"] .cv-job strong,
+html[data-theme="black"] .cv-menu-brand,
+html[data-theme="black"] .cv-menu-tab,
+html[data-theme="black"] .cv-dock-btn,
+html[data-theme="black"] .cv-tool { color: var(--ink) !important; }
+html[data-theme="black"] .cv-job small,
+html[data-theme="black"] .cv-menu-sub,
+html[data-theme="black"] .cv-menu-hint,
+html[data-theme="black"] .cv-menu-section { color: var(--muted) !important; }
+html[data-theme="black"] .cv-wires path { stroke: rgba(148, 163, 184, 0.35) !important; }
+html[data-theme="black"] .cv-wires path.active { stroke: #8b97a8 !important; }
+html[data-theme="black"] #cvSurfFsCanvas {
+  background: repeating-linear-gradient(180deg, #12161d, #12161d 15px, #0e1218 16px) !important;
+}
+
+/* —— Editor —— */
+html[data-theme="black"] .editor-body {
+  --ed-bg: #0b0e13;
+  --ed-bg-deep: #080a0e;
+  --ed-surface: #12161d;
+  --ed-surface-2: #161b22;
+  --ed-ink: #d7dee8;
+  --ed-muted: #8b97a8;
+  --ed-faint: #6b778c;
+  --ed-line: #2a3444;
+  --ed-line-soft: #1a222e;
+  --ed-accent: #5eead4;
+  --ed-accent-ink: #99f6e4;
+  --ed-accent-soft: rgba(94, 234, 212, 0.12);
+  --ed-code-bg: #0e1218;
+  --ed-code-ink: #e2e8f0;
+  --ed-fs-bg: linear-gradient(180deg, #12161d 0%, #0b0e13 100%);
+  background: var(--ed-bg) !important;
+  color: var(--ed-ink) !important;
+  color-scheme: dark;
+}
+html[data-theme="black"] .editor-body .ed-app,
+html[data-theme="black"] .editor-body .ed-titlebar,
+html[data-theme="black"] .editor-body .ed-menubar,
+html[data-theme="black"] .editor-body .ed-center,
+html[data-theme="black"] .editor-body .ed-explorer,
+html[data-theme="black"] .editor-body .ed-left,
+html[data-theme="black"] .editor-body .ed-right,
+html[data-theme="black"] .editor-body .ed-bottom,
+html[data-theme="black"] .editor-body .ed-chat,
+html[data-theme="black"] .editor-body .ed-tabs,
+html[data-theme="black"] .editor-body .ed-menu-drop,
+html[data-theme="black"] .editor-body .ed-cmd,
+html[data-theme="black"] .editor-body .ed-cmd-card,
+html[data-theme="black"] .editor-body .ns-sheet {
+  background: var(--ed-surface-2) !important;
+  border-color: var(--ed-line) !important;
+  color: var(--ed-ink) !important;
+}
+html[data-theme="black"] .editor-body .ed-code,
+html[data-theme="black"] .editor-body textarea.ed-code,
+html[data-theme="black"] .editor-body .ed-out,
+html[data-theme="black"] .editor-body .ed-assist-log,
+html[data-theme="black"] .editor-body .ed-chat-log {
+  background: var(--ed-code-bg) !important;
+  color: var(--ed-code-ink) !important;
+}
+html[data-theme="black"] .editor-body .ed-chat-msg {
+  background: var(--ed-surface) !important;
+  border-color: var(--ed-line) !important;
+  color: var(--ed-ink) !important;
+}
+html[data-theme="black"] .editor-body .ed-graph-wrap {
+  background: var(--ed-fs-bg) !important;
+}
+
+/* —— Auth gate —— */
+html[data-theme="black"] .desk-auth {
+  background: var(--bg) !important;
+}
+html[data-theme="black"] .desk-auth-card {
+  background: var(--panel) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+html[data-theme="black"] .desk-auth-card input {
+  background: var(--input-bg) !important;
+  border-color: var(--line) !important;
+  color: var(--input-ink) !important;
+}
+html[data-theme="black"] .desk-auth-card button {
+  background: var(--btn-bg) !important;
+  color: var(--btn-ink) !important;
+  border-color: var(--line) !important;
+}
+
+/* —— App shells: topnav + content —— */
+.editor-body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100dvh;
+  overflow: hidden;
+}
+.editor-body > [data-auth-app] {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+.editor-body .ed-app {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto !important;
+  max-height: none;
+}
+.editor-body [data-auth-app] > .topnav-app { flex: 0 0 auto; }
+
+.chat-app-body > [data-auth-app] {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+}
+.chat-app-body > [data-auth-app] > .topnav-app { flex: 0 0 auto !important; }
+.chat-app-body > [data-auth-app] > .chat-app,
+.chat-app-body .chat-app.chat-v6,
+.chat-app-body .chat-app.chat-v7,
+.chat-app-body .chat-app.chat-app-3 {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+}
+.chat-app-body .chat-main {
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.chat-app-body .composer-wrap {
+  flex: 0 0 auto !important;
+  padding-bottom: max(0.85rem, env(safe-area-inset-bottom, 0px)) !important;
+}
+.chat-app-body .chat-stream {
+  min-height: 0 !important;
+  flex: 1 1 auto !important;
+}
+
+.canvas-body > [data-auth-app] {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+.canvas-body > [data-auth-app] > .topnav-app { flex: 0 0 auto; }
+.canvas-body > [data-auth-app] > .canvas-app {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+@media (max-width: 720px) {
+  .theme-fab.is-float { bottom: 1rem; right: 1rem; }
+  .topnav .nu-nav-end { gap: 0.4rem; }
+}

@@ -1,0 +1,56 @@
+# Second federation hub — multi-writer cosign quorum (deploy with federation-setup.sh)
+name: noeticompute-peer
+
+networks:
+  coolify:
+    external: true
+
+volumes:
+  noetis-peer-chain-data:
+
+services:
+  network-peer:
+    build: .
+    container_name: noetis-network-peer
+    restart: unless-stopped
+    networks:
+      - coolify
+    volumes:
+      - noetis-peer-chain-data:/app/connection-layer/data
+    env_file:
+      - .env.federation.peer
+    environment:
+      - ALLOW_FAUCET=0
+      - FAUCET_MAX_AMOUNT=50
+      - HUB_BLIND=1
+      - MESH_CONSENSUS=${MESH_CONSENSUS:-1}
+      - PUBLIC_URL=${PEER_PUBLIC_URL:-http://127.0.0.1:5055}
+      - PUBLIC_HOST=${PUBLIC_HOST:-127.0.0.1}
+      - HUB_ROLE=entry
+      - REDIS_URL=redis://noetis-redis:6379/1
+      - MDNS_DISCOVERY=0
+      - MESH_PORT=5054
+      - FEDERATION_PEERS=${FEDERATION_PEERS:-https://noeticompute.com}
+      - COSIGN_QUORUM=${COSIGN_QUORUM:-2}
+      - BOOTSTRAP_PEERS=${BOOTSTRAP_PEERS:-https://noeticompute.com}
+      - PYTHONUNBUFFERED=1
+      - NOETIS_APP_VERSION=0.5.35
+    command: ["gunicorn", "--bind", "0.0.0.0:5052", "--workers", "1", "--threads", "8", "--timeout", "120", "app:app"]
+    ports:
+      - "5054:5054"
+      - "5055:5052"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=coolify
+
+      - "traefik.http.routers.noetis-peer-http.rule=Host(`peer.noeticompute.com`)"
+      - traefik.http.routers.noetis-peer-http.entrypoints=http
+      - traefik.http.routers.noetis-peer-http.middlewares=noetis-peer-redirect
+      - traefik.http.middlewares.noetis-peer-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.noetis-peer-redirect.redirectscheme.permanent=true
+
+      - "traefik.http.routers.noetis-peer.rule=Host(`peer.noeticompute.com`)"
+      - traefik.http.routers.noetis-peer.entrypoints=https
+      - traefik.http.routers.noetis-peer.tls=true
+      - traefik.http.routers.noetis-peer.tls.certresolver=letsencrypt
+      - traefik.http.services.noetis-peer.loadbalancer.server.port=5052

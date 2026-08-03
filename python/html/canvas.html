@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Canvas — Noeti</title>
+  <meta name="description" content="Noeti Canvas — put AI where you want it. Route work to your PC, phone, or private path on a spatial board." />
+  <link rel="canonical" href="https://noeticompute.com/canvas" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <script src="/static/theme-boot.js?v=230"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/noeti-site.css?v=230" />
+  <link rel="stylesheet" href="/static/noeti-uniform.css?v=230" />
+<link rel="stylesheet" href="/static/noeti-settings.css?v=230" />
+  <link rel="stylesheet" href="/static/canvas.css?v=230" />
+  <link rel="stylesheet" href="/static/brain.css?v=230" />
+  <link rel="stylesheet" href="/static/theme.css?v=230" />
+</head>
+<body class="canvas-body hunch-vibe" data-fx="classic">
+  <div id="authGate" class="desk-auth" style="position:relative;z-index:10000;background:#fff;">
+    <div class="desk-auth-card">
+      <a class="sidebar-brand" href="/">Noeti</a>
+      <h1>Canvas</h1>
+      <p class="muted">Maker sign-in unlocks Canvas, Chat, and Editor</p>
+      <form id="authForm" class="auth-form" method="post" action="/login" autocomplete="on">
+        <input type="hidden" name="next" value="/canvas" />
+        <input id="authUser" name="username" placeholder="Username" autocomplete="username" required />
+        <input id="authPass" name="password" type="password" placeholder="Password" autocomplete="current-password" required />
+        <button type="submit" id="authSubmit">Sign in</button>
+      </form>
+      <p class="auth-msg" id="authMsg"></p>
+      <p class="muted small auth-early">Early access · invite required</p>
+    </div>
+  </div>
+
+  <div data-auth-app hidden>
+  <nav class="topnav topnav-app" aria-label="Primary">
+    <a class="mark" href="/">Noeti</a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/philosophy">Philosophy</a></li>
+      <li><a href="/chat">Chat</a></li>
+      <li><a href="/editor">Editor</a></li>
+      <li><a href="/canvas" aria-current="page">Canvas</a></li>
+      <li><a href="/pricing">Pricing</a></li>
+      <li><a href="/pitch">Pitch</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+    <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <span class="spacer" aria-hidden="true"></span>
+    <button type="button" class="btn-text" id="btnAuthLogout" style="margin-right:1rem;font-size:0.75rem">Sign out</button>
+  </nav>
+
+  <div class="canvas-app" id="canvasApp">
+    <div class="cv-menu-scrim" id="menuScrim" hidden></div>
+    <aside class="cv-rail" aria-label="Canvas tools">
+      <button type="button" class="cv-rail-btn" id="btnMenuToggle" title="Open menu" aria-expanded="false">
+        <span aria-hidden="true">☰</span><em>Menu</em>
+      </button>
+      <button type="button" class="cv-rail-btn" id="btnNewCanvas" title="New canvas">
+        <span aria-hidden="true">+</span><em>New</em>
+      </button>
+      <button type="button" class="cv-rail-btn" id="btnSearchCanvas" title="Search blocks">
+        <span aria-hidden="true">⌕</span><em>Find</em>
+      </button>
+      <button type="button" class="cv-rail-btn" id="btnImportGraph" title="Import JSON">
+        <span aria-hidden="true">↑</span><em>Import</em>
+      </button>
+      <div class="cv-rail-foot">
+        <p class="cv-rail-meta" id="canvasMeta">Local board</p>
+      </div>
+    </aside>
+
+    <aside class="cv-menu" id="jobsPalette" aria-label="Canvas menu">
+      <header class="cv-menu-head">
+        <div class="cv-menu-title-row">
+          <div>
+            <p class="cv-menu-brand">Canvas</p>
+            <p class="cv-menu-sub">Build AI workflows</p>
+          </div>
+          <button type="button" class="cv-menu-close" id="btnMenuClose" aria-label="Close menu">×</button>
+        </div>
+        <input type="search" id="menuSearch" class="cv-menu-search" placeholder="Search…" autocomplete="off" />
+        <button type="button" class="cv-gen-cta" id="btnOpenGenerate">Generate</button>
+      </header>
+
+      <nav class="cv-menu-tabs" role="tablist" aria-label="Menu sections">
+        <button type="button" class="cv-menu-tab is-on" data-tab="elements" role="tab" aria-selected="true">Blocks</button>
+        <button type="button" class="cv-menu-tab" data-tab="scripts" role="tab" aria-selected="false">Scripts</button>
+        <button type="button" class="cv-menu-tab" data-tab="where" role="tab" aria-selected="false">Where</button>
+        <button type="button" class="cv-menu-tab" data-tab="setup" role="tab" aria-selected="false">Setup</button>
+        <button type="button" class="cv-menu-tab" data-tab="demos" role="tab" aria-selected="false">Jobs</button>
+        <button type="button" class="cv-menu-tab cv-menu-tab-secondary" data-tab="roles" role="tab" aria-selected="false">Roles</button>
+      </nav>
+
+      <div class="cv-menu-panels">
+        <section class="cv-menu-panel is-on" data-panel="elements" role="tabpanel">
+          <p class="cv-menu-hint">Drag or click to place</p>
+          <div class="cv-jobs-list" id="jobsListElements"></div>
+        </section>
+
+        <section class="cv-menu-panel" data-panel="scripts" role="tabpanel" hidden>
+          <p class="cv-menu-hint">Click a language to snap a script block</p>
+          <div class="cv-lang-grid" id="langGrid"></div>
+        </section>
+
+        <section class="cv-menu-panel" data-panel="roles" role="tabpanel" hidden>
+          <p class="cv-menu-hint">Witness planes · contest stays visible</p>
+          <div class="cv-jobs-list" id="jobsListRoles"></div>
+        </section>
+
+        <section class="cv-menu-panel" data-panel="where" role="tabpanel" hidden>
+          <p class="cv-menu-hint">Encircle blocks · assign where they run</p>
+          <div class="cv-where-tools" id="whereTools">
+            <button type="button" class="cv-where-tool" data-where-preset="private">
+              <strong>Private zone</strong>
+              <em>On-node only · no network</em>
+            </button>
+            <button type="button" class="cv-where-tool" data-where-preset="local">
+              <strong>Local zone</strong>
+              <em>This computer</em>
+            </button>
+            <button type="button" class="cv-where-tool" data-where-preset="decentralized">
+              <strong>Decentralized</strong>
+              <em>Mesh / self-host</em>
+            </button>
+            <button type="button" class="cv-where-tool" data-where-preset="centralized">
+              <strong>Centralized</strong>
+              <em>Cloud catalog</em>
+            </button>
+            <button type="button" class="cv-where-tool" data-where-preset="machine">
+              <strong>Specific PC</strong>
+              <em>Named rack / laptop</em>
+            </button>
+            <button type="button" class="cv-where-tool" data-where-preset="phone">
+              <strong>Phone</strong>
+              <em>Pair · snap · lands on board</em>
+            </button>
+            <button type="button" class="cv-where-tool ghost" id="btnWhereDraw">
+              <strong>▢ Draw freely</strong>
+              <em>Then pick where in the popover</em>
+            </button>
+          </div>
+          <p class="cv-menu-note">Double-click a zone on the board to remove it.</p>
+        </section>
+
+        <section class="cv-menu-panel" data-panel="setup" role="tabpanel" hidden>
+          <p class="cv-menu-hint">Website installs local compute for you — no manual Ollama download</p>
+          <div class="cv-setup-card" id="setupCard">
+            <div class="cv-setup-status">
+              <strong id="setupTitle">Local compute</strong>
+              <em id="setupMsg">Checking…</em>
+            </div>
+            <div class="cv-setup-bar" aria-hidden="true"><i id="setupBar"></i></div>
+            <ol class="cv-setup-steps" id="setupSteps"></ol>
+            <div class="cv-setup-actions">
+              <button type="button" class="cv-setup-btn primary" id="btnAutoSetup">Install &amp; arm local</button>
+              <button type="button" class="cv-setup-btn" id="btnRefreshSetup">Refresh</button>
+            </div>
+            <p class="cv-menu-note" id="setupLangSummary"></p>
+          </div>
+        </section>
+
+        <section class="cv-menu-panel" data-panel="demos" role="tabpanel" hidden>
+          <p class="cv-menu-hint">Finished jobs · drop onto the board</p>
+          <div class="cv-demo-list" id="demoList"></div>
+        </section>
+      </div>
+    </aside>
+
+    <div class="cv-stage-wrap" id="stageWrap">
+      <div class="cv-toolbar" role="toolbar">
+        <button type="button" class="cv-tool run" id="btnRun" title="Run full graph">Run</button>
+        <button type="button" class="cv-tool ghost" id="btnStop" hidden>Stop</button>
+        <span class="cv-local-pill" id="localPill" hidden title="Local compute">Local…</span>
+        <span class="cv-tool-sep"></span>
+        <button type="button" class="cv-tool seal" id="btnSeal" title="Seal ProofPath packet">Seal</button>
+        <button type="button" class="cv-tool primary" id="btnShareHint" title="Share sealed proof link">Share</button>
+        <button type="button" class="cv-tool ghost" id="btnCanvasSettings" title="Settings">Settings</button>
+        <!-- Kept for JS; opened from Settings -->
+        <label class="cv-priv-toggle" id="cvPrivWrap" hidden>
+          <input type="checkbox" id="btnPrivateLocal" />
+          <span>Private</span>
+        </label>
+        <button type="button" class="cv-tool ghost" id="btnRegionSelect" hidden title="Where zones" aria-pressed="false">Where</button>
+        <div class="cv-more" id="toolbarMore" hidden>
+          <button type="button" class="cv-tool ghost" id="btnMore" title="More actions" aria-expanded="false" aria-haspopup="true">More</button>
+          <div class="cv-more-menu" id="moreMenu" hidden role="menu">
+            <button type="button" role="menuitem" id="btnRunSelected" title="Run from selected node">From selection</button>
+            <button type="button" role="menuitem" id="btnUndo" title="Undo (⌘Z)">Undo</button>
+            <button type="button" role="menuitem" id="btnRedo" title="Redo (⇧⌘Z)">Redo</button>
+            <button type="button" role="menuitem" id="btnZoomFit" title="Fit board">Fit</button>
+            <button type="button" role="menuitem" id="btnZoomOut" title="Zoom out">Zoom −</button>
+            <button type="button" role="menuitem" id="btnZoomIn" title="Zoom in">Zoom +</button>
+            <span class="cv-more-zoom" id="zoomLabel">100%</span>
+            <hr />
+            <button type="button" role="menuitem" id="btnHistory" title="Run history / replay">History</button>
+            <button type="button" role="menuitem" id="btnToggleInsp" title="Show / hide inspector" aria-pressed="true">Inspector</button>
+            <button type="button" role="menuitem" id="btnExportGraph">Export JSON</button>
+          </div>
+        </div>
+        <select id="fxMode" hidden aria-hidden="true">
+          <option value="classic" selected>Classic</option>
+          <option value="flow">Flow</option>
+          <option value="pulse">Pulse</option>
+          <option value="neon">Neon</option>
+        </select>
+        <select id="tplSelect" hidden aria-hidden="true">
+          <option value="">Template…</option>
+          <option value="journalism">Journalism desk</option>
+          <option value="private">Private local</option>
+          <option value="regions">Where zones</option>
+          <option value="vision">Vision check</option>
+          <option value="planes">Triple plane</option>
+          <option value="scripts">Script snap-in</option>
+        </select>
+      </div>
+
+      <div class="cv-loop" id="cvLoop" hidden>
+        <p class="cv-loop-lead" id="cvLoopLead">Private AI workflow · run on-node · seal the proof</p>
+        <div class="cv-loop-steps" role="list">
+          <button type="button" class="cv-loop-step" data-loop="generate" id="loopGenerate">1 Generate</button>
+          <button type="button" class="cv-loop-step" data-loop="run" id="loopRun">2 Run</button>
+          <button type="button" class="cv-loop-step" data-loop="seal" id="loopSeal">3 Seal</button>
+          <button type="button" class="cv-loop-step" data-loop="share" id="loopShare">4 Share</button>
+        </div>
+        <button type="button" class="cv-loop-dismiss" id="cvLoopDismiss" aria-label="Dismiss">×</button>
+      </div>
+
+      <div class="cv-share-toast" id="shareToast" hidden>
+        <div class="cv-share-card">
+          <p class="cv-share-kicker">Proof sealed</p>
+          <strong id="shareToastTitle">Shareable link ready</strong>
+          <input type="text" id="shareToastUrl" readonly />
+          <div class="cv-share-actions">
+            <button type="button" class="cv-setup-btn" id="shareToastCopy">Copy link</button>
+            <a class="cv-setup-btn primary" id="shareToastOpen" href="#" target="_blank" rel="noopener">Open proof</a>
+            <button type="button" class="cv-setup-btn" id="shareToastClose">Done</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cv-paste-modal" id="pasteModal" hidden>
+        <div class="cv-gen-card" role="dialog" aria-labelledby="pasteTitle">
+          <header>
+            <div>
+              <p class="cv-gen-kicker">Script magic</p>
+              <h2 id="pasteTitle">Paste code → snap a block</h2>
+            </div>
+            <button type="button" class="cv-gen-close" id="btnPasteClose" aria-label="Close">×</button>
+          </header>
+          <textarea id="pasteSource" rows="8" placeholder="Paste any script. Language is detected from fences or syntax."></textarea>
+          <label class="cv-gen-opt">Language
+            <select id="pasteLang">
+              <option value="auto">Auto-detect</option>
+              <option value="python">Python</option>
+              <option value="javascript">JavaScript</option>
+              <option value="bash">Bash</option>
+              <option value="ruby">Ruby</option>
+              <option value="go">Go</option>
+              <option value="rust">Rust</option>
+              <option value="c">C</option>
+              <option value="cpp">C++</option>
+              <option value="java">Java</option>
+              <option value="php">PHP</option>
+              <option value="lua">Lua</option>
+              <option value="r">R</option>
+              <option value="perl">Perl</option>
+            </select>
+          </label>
+          <div class="cv-gen-actions">
+            <button type="button" class="cv-setup-btn" id="btnPasteCancel">Cancel</button>
+            <button type="button" class="cv-setup-btn primary" id="btnPasteGo">Snap script</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="cv-phone-modal" id="phonePairModal" hidden>
+        <div class="cv-gen-card" role="dialog" aria-labelledby="phonePairTitle">
+          <header>
+            <div>
+              <p class="cv-gen-kicker">Phone → Canvas</p>
+              <h2 id="phonePairTitle">Open this on your phone</h2>
+            </div>
+            <button type="button" class="cv-gen-close" id="btnPhonePairClose" aria-label="Close">×</button>
+          </header>
+          <p class="cv-phone-pair-lead">Scan or open the link. Snap a photo — it lands here as <strong>Where · Phone</strong>.</p>
+          <div class="cv-phone-pair-grid">
+            <img id="phoneQr" class="cv-phone-qr" alt="QR code to pair phone" />
+            <div>
+              <input type="text" id="phonePairUrl" readonly />
+              <div class="cv-share-actions" style="margin-top:0.55rem">
+                <button type="button" class="cv-setup-btn" id="btnPhoneCopy">Copy link</button>
+                <a class="cv-setup-btn primary" id="btnPhoneOpen" href="#" target="_blank" rel="noopener">Open</a>
+              </div>
+              <p class="cv-phone-pair-status" id="phonePairStatus">Waiting for phone…</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cv-phone-modal" id="devicePairModal" hidden>
+        <div class="cv-gen-card" role="dialog" aria-labelledby="devicePairTitle">
+          <header>
+            <div>
+              <p class="cv-gen-kicker">Connect PC</p>
+              <h2 id="devicePairTitle">Run models on your computer</h2>
+            </div>
+            <button type="button" class="cv-gen-close" id="btnDevicePairClose" aria-label="Close">×</button>
+          </header>
+          <p class="cv-phone-pair-lead">One terminal command links this PC. Then assign <strong>Where · Specific PC</strong> and Run.</p>
+          <div class="cv-phone-pair-grid">
+            <img id="deviceQr" class="cv-phone-qr" alt="QR to open pair page" />
+            <div>
+              <input type="text" id="devicePairUrl" readonly />
+              <div class="cv-share-actions" style="margin-top:0.55rem">
+                <button type="button" class="cv-setup-btn" id="btnDeviceCopyLink">Copy link</button>
+                <a class="cv-setup-btn primary" id="btnDeviceOpen" href="#" target="_blank" rel="noopener">Open</a>
+              </div>
+              <p class="cv-phone-pair-status" id="devicePairStatus">Creating link…</p>
+            </div>
+          </div>
+          <label class="cv-gen-opt" style="margin-top:0.85rem">Agent command</label>
+          <textarea id="deviceAgentCmd" rows="3" readonly style="width:100%;font-family:var(--mono);font-size:0.72rem;border:1px solid var(--cv-line);border-radius:10px;padding:0.55rem;background:var(--cv-soft)"></textarea>
+          <div class="cv-share-actions">
+            <button type="button" class="cv-setup-btn primary" id="btnDeviceCopyCmd">Copy command</button>
+          </div>
+          <div id="deviceLiveList" class="cv-device-list"></div>
+        </div>
+      </div>
+
+      <div class="cv-progress" id="runProgress" hidden>
+        <div class="cv-progress-bar" id="runProgressBar"></div>
+      </div>
+
+      <div class="cv-viewport" id="viewport">
+        <svg class="cv-wires" id="wires" aria-hidden="true"></svg>
+        <div class="cv-regions" id="regionsLayer" aria-hidden="true"></div>
+        <div class="cv-world" id="world"></div>
+        <div class="cv-marquee" id="marquee" hidden></div>
+      </div>
+
+      <div class="cv-dock" id="canvasDock" role="toolbar" aria-label="Add blocks">
+        <button type="button" class="cv-dock-btn" id="btnDockPan" title="Pan canvas" aria-pressed="false">Hand</button>
+        <span class="cv-dock-sep"></span>
+        <button type="button" class="cv-dock-btn accent" id="btnDockAI" data-place="model">AI</button>
+        <button type="button" class="cv-dock-btn" id="btnDockContent" data-place="prompt">Note</button>
+        <button type="button" class="cv-dock-btn" id="btnDockScript" data-place="script">Script</button>
+        <button type="button" class="cv-dock-btn" id="btnDockPhone" hidden title="Connect phone · live video">Phone</button>
+        <button type="button" class="cv-dock-btn" id="btnDockDevice" hidden title="Connect a PC · run local models">PC</button>
+        <button type="button" class="cv-dock-btn" id="btnDockBrain" hidden title="Second Brain · allow files + coding map">Brain</button>
+        <button type="button" class="cv-dock-btn" id="btnDockPaste" title="Paste code into a script block">Paste</button>
+        <span class="cv-dock-sep"></span>
+        <button type="button" class="cv-dock-btn" id="btnDockAll" title="Open all blocks">Blocks</button>
+        <button type="button" class="cv-dock-btn primary" id="btnDockGenerate">Generate</button>
+      </div>
+
+      <div class="cv-gen-modal" id="genModal" hidden>
+        <div class="cv-gen-card" role="dialog" aria-labelledby="genTitle">
+          <header>
+            <div>
+              <p class="cv-gen-kicker">Describe → board → seal</p>
+              <h2 id="genTitle">What should this workflow do?</h2>
+            </div>
+            <button type="button" class="cv-gen-close" id="btnGenClose" aria-label="Close">×</button>
+          </header>
+          <textarea id="genBrief" rows="5" placeholder="e.g. Private summary of my notes, then seal a proof I can share."></textarea>
+          <div class="cv-gen-chips" id="genChips">
+            <button type="button" data-chip="Summarize notes with a private local model and seal-ready output">Private summary</button>
+            <button type="button" data-chip="Verify a news claim with checker, validator, watcher, and a publish gate">Verify a claim</button>
+            <button type="button" data-chip="Extract numbers with a Python script and verify before publish">Script + math</button>
+            <button type="button" data-chip="Vision OCR on an image, calc check, then gate">Vision check</button>
+          </div>
+          <label class="cv-gen-opt"><input type="checkbox" id="genUseModel" checked /> Refine with local AI</label>
+          <div class="cv-gen-actions">
+            <button type="button" class="cv-setup-btn" id="btnGenCancel">Cancel</button>
+            <button type="button" class="cv-setup-btn primary" id="btnGenGo">Generate board</button>
+          </div>
+          <p class="cv-gen-msg" id="genMsg" hidden></p>
+        </div>
+      </div>
+
+      <div class="cv-route-pop" id="routePop" hidden>
+        <p class="cv-route-kicker">Encapsulate</p>
+        <p id="routePopLead">Where should this region run?</p>
+        <div class="cv-route-actions">
+          <button type="button" data-route="private" title="On-node only · no network leave">
+            <strong>Private</strong><em>On-node · sealed</em>
+          </button>
+          <button type="button" data-route="local" title="This machine · on-node models">
+            <strong>Local</strong><em>This computer</em>
+          </button>
+          <button type="button" data-route="decentralized" title="Mesh / self-hostable models">
+            <strong>Decentralized</strong><em>Network mesh</em>
+          </button>
+          <button type="button" data-route="centralized" title="Hosted catalog APIs">
+            <strong>Centralized</strong><em>Cloud catalog</em>
+          </button>
+          <button type="button" data-route="machine" title="Pin to a connected computer">
+            <strong>Specific PC</strong><em>Your paired computers</em>
+          </button>
+          <button type="button" data-route="phone" title="Phone camera + on-device compute">
+            <strong>Phone</strong><em>Camera · on-device</em>
+          </button>
+        </div>
+        <div class="cv-machine-pick" id="machinePick" hidden>
+          <label for="machineSelect">Computer</label>
+          <select id="machineSelect" aria-label="Specific computer">
+            <option value="">Choose a node…</option>
+            <option value="this">This browser host</option>
+            <option value="site-01">site-01 · Newsroom rack A · Floor 3 · 2×4090</option>
+            <option value="peer-01">peer-01 · Field laptop Mira · south approach</option>
+            <option value="desk-02">desk-02 · Night desk tower · overflow</option>
+            <option value="custom" disabled>Custom host… (soon)</option>
+          </select>
+          <p class="cv-machine-note">Live paired PCs appear above. Demo hosts are for Jobs samples only — Connect PC for real routing.</p>
+          <button type="button" class="cv-machine-confirm" id="machineConfirm">Save zone</button>
+          <button type="button" class="cv-machine-confirm" id="btnMachineConnect" style="margin-top:0.4rem;background:#fff;color:#111;border:1px solid #111">Connect another PC…</button>
+        </div>
+        <div class="cv-machine-pick" id="phonePick" hidden>
+          <label for="phoneSelect">Phone</label>
+          <select id="phoneSelect" aria-label="Specific phone">
+            <option value="">Pair a phone first…</option>
+            <optgroup label="Demo phones (Jobs samples)">
+              <option value="phone-mira">phone-mira · demo field camera</option>
+              <option value="phone-desk">phone-desk · demo doc scan</option>
+              <option value="phone-night">phone-night · demo overflow</option>
+            </optgroup>
+          </select>
+          <p class="cv-machine-note">Live phones appear after dock → <strong>Phone</strong> pair. Demo options only for sample boards.</p>
+          <button type="button" class="cv-machine-confirm" id="phoneConfirm">Save phone zone</button>
+          <button type="button" class="cv-machine-confirm" id="btnPhoneConnectFromZone" style="margin-top:0.4rem;background:#fff;color:#111;border:1px solid #111">Pair a phone…</button>
+        </div>
+        <button type="button" class="cv-route-cancel" id="routePopCancel">Cancel</button>
+      </div>
+
+      <div class="cv-status" id="runStatus" hidden></div>
+    </div>
+
+    <aside class="cv-inspector" id="inspector" aria-label="Node inspector">
+      <header class="cv-insp-head">
+        <div>
+          <p class="cv-insp-kicker" id="inspKind">Inspector</p>
+          <h2 id="inspTitle">Select a block</h2>
+        </div>
+        <button type="button" class="cv-insp-close" id="btnInspClose" aria-label="Close inspector" title="Close inspector">×</button>
+      </header>
+      <div class="cv-insp-body" id="inspBody">
+          <p class="cv-insp-empty">Select a block to edit.</p>
+      </div>
+      <footer class="cv-insp-foot" id="inspFoot" hidden>
+        <button type="button" class="cv-insp-btn primary" id="btnOpenSurface">Open</button>
+        <button type="button" class="cv-insp-btn" id="btnDupNode">Duplicate</button>
+        <button type="button" class="cv-insp-btn danger" id="btnDelNode">Delete</button>
+      </footer>
+    </aside>
+
+    <aside class="cv-surface" id="cvSurface" hidden aria-label="Block surface">
+      <header class="cv-surface-head">
+        <div>
+          <p class="cv-surface-kicker" id="cvSurfaceMode">Surface</p>
+          <h2 id="cvSurfaceTitle">Block</h2>
+        </div>
+        <div class="cv-surface-head-actions">
+          <button type="button" class="cv-surface-tab is-on" data-surf-tab="auto" id="cvSurfTabAuto">Auto</button>
+          <button type="button" class="cv-surface-tab" data-surf-tab="editor" id="cvSurfTabEditor">Editor</button>
+          <button type="button" class="cv-surface-tab" data-surf-tab="chat" id="cvSurfTabChat">Chat</button>
+          <button type="button" class="cv-surface-tab" data-surf-tab="fs" id="cvSurfTabFs">Files</button>
+          <button type="button" class="cv-surface-close" id="cvSurfaceClose" aria-label="Close">×</button>
+        </div>
+      </header>
+      <div class="cv-surface-editor" id="cvSurfaceEditor" hidden>
+        <div class="cv-surface-toolbar">
+          <select id="cvSurfLang" aria-label="Language"></select>
+          <button type="button" class="cv-setup-btn primary" id="cvSurfRun">Run</button>
+          <button type="button" class="cv-setup-btn" id="cvSurfApply">Save to block</button>
+        </div>
+        <textarea id="cvSurfCode" class="cv-surface-code" spellcheck="false" wrap="off" placeholder="// source"></textarea>
+        <pre class="cv-surface-out" id="cvSurfOut">Ready.</pre>
+      </div>
+      <div class="cv-surface-chat" id="cvSurfaceChat" hidden>
+        <div class="cv-surface-chat-log" id="cvSurfChatLog"></div>
+        <form class="cv-surface-chat-form" id="cvSurfChatForm">
+          <textarea id="cvSurfChatIn" rows="2" placeholder="Ask about this block…"></textarea>
+          <button type="submit" class="cv-setup-btn primary">Ask</button>
+        </form>
+      </div>
+      <div class="cv-surface-fs" id="cvSurfaceFs" hidden>
+        <div class="cv-surface-fs-bar">
+          <span>Filesystem · Second Brain</span>
+          <button type="button" class="cv-setup-btn" id="cvSurfFsOpen">Allow folder</button>
+        </div>
+        <canvas id="cvSurfFsCanvas" aria-label="Filesystem map"></canvas>
+        <p class="cv-surface-fs-hint" id="cvSurfFsHint">Open a folder to map files. Click a file to load it into Editor.</p>
+      </div>
+    </aside>
+    <button type="button" class="cv-insp-reopen" id="btnInspReopen" hidden title="Open inspector">Inspect</button>
+    <div class="cv-history" id="historyPanel" hidden>
+      <header>
+        <strong>Run history</strong>
+        <button type="button" id="btnHistClose" aria-label="Close">×</button>
+      </header>
+      <div class="cv-history-list" id="historyList"></div>
+      <p class="cv-history-hint">
+        Start with a Where board ·
+        <button type="button" class="cv-linkish" id="btnSampleWhere">Open sample</button>
+        · Private / Local / Cloud · ⌘Z undo
+      </p>
+    </div>
+  </div>
+
+  <input type="file" id="visionFile" accept="image/*" hidden />
+  <input type="file" id="importFile" accept="application/json,.json" hidden />
+  </div><!-- data-auth-app -->
+
+  <div class="ns-backdrop" id="cvSettingsBackdrop" hidden></div>
+  <aside class="ns-sheet" id="cvSettingsSheet" hidden role="dialog" aria-label="Canvas settings">
+    <header class="ns-head">
+      <div>
+        <p class="ns-kicker">Canvas</p>
+        <h2>Settings</h2>
+      </div>
+      <button type="button" class="ns-close" id="cvSettingsClose" aria-label="Close">×</button>
+    </header>
+    <div class="ns-body">
+      <div class="ns-section">
+        <p class="ns-label">Routing</p>
+        <label class="ns-toggle">
+          <span><strong>Private local</strong><em>On-node models · no network</em></span>
+          <input type="checkbox" id="cvSetPrivate" />
+        </label>
+        <div class="ns-row" style="margin-top:0.5rem">
+          <button type="button" class="ns-btn" id="cvSetWhere">Where zones</button>
+        </div>
+      </div>
+      <div class="ns-section">
+        <p class="ns-label">Board</p>
+        <div class="ns-row">
+          <button type="button" class="ns-btn" data-cv-act="runSelected">From selection</button>
+          <button type="button" class="ns-btn" data-cv-act="undo">Undo</button>
+          <button type="button" class="ns-btn" data-cv-act="redo">Redo</button>
+          <button type="button" class="ns-btn" data-cv-act="fit">Fit</button>
+          <button type="button" class="ns-btn" data-cv-act="zoomOut">Zoom −</button>
+          <button type="button" class="ns-btn" data-cv-act="zoomIn">Zoom +</button>
+          <button type="button" class="ns-btn" data-cv-act="history">History</button>
+          <button type="button" class="ns-btn" data-cv-act="inspector">Inspector</button>
+          <button type="button" class="ns-btn" data-cv-act="export">Export JSON</button>
+        </div>
+      </div>
+      <div class="ns-section">
+        <p class="ns-label">Devices</p>
+        <div class="ns-row">
+          <button type="button" class="ns-btn" data-cv-act="phone">Phone</button>
+          <button type="button" class="ns-btn" data-cv-act="device">PC</button>
+          <button type="button" class="ns-btn" data-cv-act="brain">Brain</button>
+        </div>
+      </div>
+      <div class="ns-section">
+        <p class="ns-label">Go</p>
+        <div class="ns-links">
+          <a href="/editor">Editor</a>
+          <a href="/chat">Chat</a>
+          <a href="/">Home</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <style>[data-auth-app][hidden]{display:none!important}#authGate{position:relative;z-index:10000}</style>
+  <script src="/static/auth_site.js?v=5"></script>
+  <script src="/static/site.js?v=230"></script>
+  <script src="/static/brain.js?v=220"></script>
+  <script src="/static/canvas.js?v=230"></script>
+</body>
+</html>

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Refraction Mesh Architecture — IEEE Technical Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <script src="/static/theme-boot.js?v=230"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <meta name="description" content="IEEE-format research paper on Refraction Mesh Architecture: multimodal decentralized inference, equations, data protection, and publish gates." />
+  <link rel="canonical" href="https://noeticompute.com/whitepaper" />
+  <link rel="stylesheet" href="/static/noeti-site.css?v=230" />
+  <link rel="stylesheet" href="/static/noeti-uniform.css?v=230" />
+<link rel="stylesheet" href="/static/nu-ui.css?v=230" />
+<link rel="stylesheet" href="/static/whitepaper.css?v=230" />
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']] },
+      options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+  <link rel="stylesheet" href="/static/theme.css?v=230" />
+</head>
+<body class="wp-body">
+  <div class="wp-progress" id="wpProgress" aria-hidden="true"></div>
+  <nav class="topnav nu-nav" aria-label="Primary">
+    <a class="mark" href="/">Noeti</a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/whitepaper" aria-current="page">Whitepaper</a></li>
+      <li><a href="/chat">Chat</a></li>
+      <li><a href="/canvas">Canvas</a></li>
+      <li><a href="/pricing">Pricing</a></li>
+    </ul>
+    <a class="nu-btn nu-btn--solid nu-btn--sm nu-nav-cta" href="/canvas?sample=where">Open</a>
+    <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+  </nav>
+
+  <header class="wp-hero">
+    <p class="wp-kicker">Technical report · v1.3</p>
+    <h1 class="wp-hero-title">Refraction Mesh Architecture</h1>
+    <p class="wp-hero-sub">Multimodal decentralized inference with verifiable claims — a peer-checked publish path for AI where you want it.</p>
+    <p class="wp-hero-meta">Noeti Compute Lab · 2026</p>
+    <div class="wp-actions">
+      <a class="nu-btn nu-btn--solid" href="/downloads/refraction_mesh.pdf">Download PDF</a>
+    </div>
+  </header>
+
+  <div class="wp-layout">
+    <aside class="wp-toc">
+      <p class="wp-toc-title">Contents</p>
+      <ol>
+        <li><a href="#abstract">00 Abstract</a></li>
+        <li><a href="#intro">01 Intro</a></li>
+        <li><a href="#related">02 Related</a></li>
+        <li><a href="#threat">03 Threat</a></li>
+        <li><a href="#rma">04 Architecture</a></li>
+        <li><a href="#multi">05 Multimodal</a></li>
+        <li><a href="#decentral">06 Dual fabric</a></li>
+        <li><a href="#protect">07 Protection</a></li>
+        <li><a href="#proofpath">08 ProofPath</a></li>
+        <li><a href="#gate">09 Gate</a></li>
+        <li><a href="#novelty">10 Novelty</a></li>
+        <li><a href="#concl">11 Conclusion</a></li>
+        <li><a href="#refs">Refs</a></li>
+      </ol>
+    </aside>
+
+    <article class="wp-paper ieee-html">
+      <div class="ieee-titleblock">
+        <h1>Refraction Mesh Architecture: Multimodal Decentralized Inference with Verifiable Claims and Fail-Closed Data Protection</h1>
+        <p class="ieee-authors">Noeti Compute Lab</p>
+        <p class="ieee-affil">Independent Research Group · dev@noeticompute.com · noeticompute.com</p>
+      </div>
+
+      <section id="abstract" class="wp-abstract">
+        <h2 data-num="00">Abstract</h2>
+        <p>
+          Foundation models concentrate two coupled risks that existing assistant architectures handle poorly:
+          <em>epistemic risk</em>, in which fluent generation outruns grounded verification, and <em>custody risk</em>,
+          in which multimodal case material is retained inside a monopolistic compute boundary
+          <a href="#r1">[1]</a>–<a href="#r5">[5]</a>.
+          Automated fact-checking and retrieval-augmented generation improve coverage, yet typically collapse judgment
+          into a single score produced inside a single trust domain <a href="#r8">[8]</a>–<a href="#r10">[10]</a>.
+          We propose the <em>Refraction Mesh Architecture</em> (RMA), a systems architecture in which composite multimodal
+          inputs are refracted into typed atomic claims and calculation tasks, probed by orthogonal witness planes, and
+          admitted to export only through a machine-checkable publish gate.
+          We formalize spectral conflict intensity $\kappa_i$, orthogonality $\Omega$, gate predicates $\Gamma$, and a
+          six-layer data-protection stack with fail-closed semantics.
+          RMA couples ProofPath audit packets, privacy sleeves, dual decentralized/centralized routing with explicit
+          provenance, and Proof-of-Inference cosigning <a href="#r12">[12]</a>, <a href="#r14">[14]</a>, <a href="#r16">[16]</a>.
+        </p>
+        <p class="wp-note"><strong>Index Terms—</strong>Decentralized inference, multimodal verification, publish gate, privacy sleeves, Proof-of-Inference, systems security.</p>
+      </section>
+
+      <section id="intro">
+        <h2 data-num="01">Introduction</h2>
+        <p>
+          The rapid deployment of large language and multimodal models has changed drafting practice across journalism,
+          law, compliance, and open-source intelligence <a href="#r1">[1]</a>–<a href="#r3">[3]</a>.
+          The scientific and operational problem is no longer merely “can the model answer?” but “under what architectural
+          guarantees may an answer become a publishable artifact, and what happens to the underlying media while that
+          answer is produced?”
+        </p>
+        <p>
+          Empirical work shows that false claims propagate faster than true ones in online networks <a href="#r4">[4]</a>.
+          Analyses of large generative systems warn that fluency can detach from communicative grounding <a href="#r5">[5]</a>.
+          Instruction tuning improves helpfulness <a href="#r3">[3]</a>, yet does not by itself create multi-party epistemic
+          checks, durable negative evidence, or custody boundaries for restricted images and sealed documents.
+        </p>
+        <p>
+          Automated fact-checking has matured into extract–retrieve–verify pipelines <a href="#r8">[8]</a>, <a href="#r9">[9]</a>.
+          RAG reduces some hallucinations by coupling parametric memory to external corpora <a href="#r10">[10]</a>.
+          Multi-agent setups improve intermediate structure <a href="#r6">[6]</a>, <a href="#r7">[7]</a>.
+          Vision–language models enable cross-modal grounding <a href="#r20">[20]</a>, <a href="#r21">[21]</a>.
+          Journalism verification handbooks, however, insist on independent corroboration, documentation of what was
+          <em>not</em> found, and human authority over publication <a href="#r17">[17]</a>, <a href="#r18">[18]</a>—practices most model UIs still omit.
+        </p>
+        <p>
+          We therefore treat verification and data protection as <em>architectural invariants</em>.
+          The refraction metaphor is operational: a composite statement behaves like white light; RMA splits it into typed
+          spectral lines, measures disagreement across orthogonal instruments, and applies a notch filter before export.
+        </p>
+        <h3>A. Research Questions</h3>
+        <p>
+          <strong>RQ1 (Epistemics):</strong> How can multimodal claims be certified without collapsing to a single model score?<br/>
+          <strong>RQ2 (Decentralization):</strong> How can inference remain decentralized-first while offering labeled centralized capacity?<br/>
+          <strong>RQ3 (Custody):</strong> How can sensitive multimodal data be protected under fail-closed policy rather than best-effort redaction?
+        </p>
+        <h3>B. Contributions</h3>
+        <p>
+          (1) We invent and specify RMA for typed multimodal claim verification.
+          (2) We formalize $\kappa_i$, $\Omega$, and $\Gamma$.
+          (3) We define ProofPath packets with first-class negative evidence and Merkle–Ed25519 sealing <a href="#r13">[13]</a>, <a href="#r16">[16]</a>.
+          (4) We present a dual fabric and a rigorously layered data-protection stack <a href="#r14">[14]</a>, <a href="#r15">[15]</a>.
+          (5) We provide an evaluation agenda and a live deployment mapping.
+        </p>
+      </section>
+
+      <section id="related">
+        <h2 data-num="02">Related Work</h2>
+        <h3>A. Fault Tolerance and Ledgers</h3>
+        <p>
+          Byzantine agreement requires quora among unreliable parties <a href="#r11">[11]</a>, <a href="#r12">[12]</a>.
+          RMA borrows quorum intuition for epistemic artifacts—claims—rather than only replica logs.
+          Merkle commitments and ledgers motivate append-only auditability <a href="#r13">[13]</a>, <a href="#r19">[19]</a>.
+          Content addressing supports immutable extracts for replay.
+        </p>
+        <h3>B. Privacy and Collaborative Learning</h3>
+        <p>
+          Mix networks unlink senders from messages <a href="#r14">[14]</a>.
+          Differential privacy formalizes disclosure risk <a href="#r22">[22]</a>.
+          Secure aggregation and federated learning reduce central visibility into raw updates <a href="#r15">[15]</a>.
+          RMA adapts unlinkability to inference <em>tasks</em>: the compute node should learn the job, not the requester identity.
+        </p>
+        <h3>C. Fact Checking, RAG, Agents, Multimodality</h3>
+        <p>
+          FEVER formalized large-scale claim verification <a href="#r8">[8]</a>; surveys chart methods and limits <a href="#r9">[9]</a>.
+          RAG couples generation to retrieved non-parametrics <a href="#r10">[10]</a>.
+          Multimodal LLMs fuse vision and language <a href="#r20">[20]</a>, <a href="#r21">[21]</a>.
+          RMA claims a new <em>control plane</em> for when generative output may leave a high-stakes desk—not a new backbone model.
+        </p>
+      </section>
+
+      <section id="threat">
+        <h2 data-num="03">Threat Model and Design Goals</h2>
+        <p>
+          A minority of compute nodes may be Byzantine <a href="#r11">[11]</a>.
+          Centralized APIs are untrusted for sole judgment and restricted media <a href="#r5">[5]</a>.
+          Attacks include prompt injection, Sybil witnesses, adversarial images, OCR spoofing, and caption–pixel inconsistency <a href="#r21">[21]</a>.
+        </p>
+        <p>
+          <strong>G1 Multiplicity</strong> — no single plane suffices for publication-bound claims.
+          <strong>G2 Durability</strong> — checks survive as replayable packets.
+          <strong>G3 Custody</strong> — restricted media defaults on-node; catalog use is explicit.
+          <strong>G4 Fail-closed</strong> — missing private capacity refuses the job.
+          <strong>G5 Human authority</strong> — gates assist editors; they do not replace them <a href="#r18">[18]</a>.
+        </p>
+      </section>
+
+      <section id="rma">
+        <h2 data-num="04">Refraction Mesh Architecture</h2>
+        <p>
+          Let multimodal bundle $B=(Q,R,\mathcal{M})$. Refraction is
+        </p>
+        <div class="wp-eq">\[\mathrm{Refract}(B)\mapsto C=\{c_1,\ldots,c_n\}\]</div>
+        <p>
+          with typed atoms $\tau(c_i)\in\{\mathsf{text},\mathsf{vision},\mathsf{doc},\mathsf{table},\mathsf{calc},\mathsf{cross}\}$.
+          A witness plane maps $(c_i,\mathcal{S})\mapsto v_{i,k}\in\{\mathsf{support},\mathsf{contest},\mathsf{unknown}\}$.
+        </p>
+                <figure class="wp-figure" id="fig-rma">
+          <svg class="arch-svg" viewBox="0 0 920 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Refraction Mesh architecture">
+            <defs>
+              <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#000"/></marker>
+            </defs>
+            <rect x="12" y="12" width="896" height="250" fill="none" stroke="#000" stroke-dasharray="5 4"/>
+            <text x="24" y="32" font-family="Times New Roman, serif" font-size="13" font-style="italic">Witness lattice</text>
+            <rect x="30" y="55" width="110" height="52" fill="#eee" stroke="#000"/>
+            <text x="85" y="78" text-anchor="middle" font-size="12" font-family="Times New Roman, serif" font-weight="700">Bundle B</text>
+            <text x="85" y="94" text-anchor="middle" font-size="10" font-family="Times New Roman, serif">(Q,R,M)</text>
+            <line x1="140" y1="81" x2="175" y2="81" stroke="#000" marker-end="url(#arrow)"/>
+            <rect x="178" y="55" width="88" height="52" fill="#fff" stroke="#000"/>
+            <text x="222" y="86" text-anchor="middle" font-size="12" font-family="Times New Roman, serif" font-weight="700">Refract</text>
+            <line x1="266" y1="81" x2="300" y2="81" stroke="#000" marker-end="url(#arrow)"/>
+            <rect x="302" y="55" width="100" height="52" fill="#eee" stroke="#000"/>
+            <text x="352" y="78" text-anchor="middle" font-size="12" font-family="Times New Roman, serif" font-weight="700">Atoms C</text>
+            <text x="352" y="94" text-anchor="middle" font-size="10" font-family="Times New Roman, serif">τ(cᵢ)</text>
+            <rect x="460" y="28" width="100" height="36" fill="#fff" stroke="#000"/>
+            <text x="510" y="51" text-anchor="middle" font-size="11" font-family="Times New Roman, serif">Record W₁</text>
+            <rect x="460" y="72" width="100" height="36" fill="#fff" stroke="#000"/>
+            <text x="510" y="95" text-anchor="middle" font-size="11" font-family="Times New Roman, serif">Temporal W₂</text>
+            <rect x="460" y="116" width="100" height="36" fill="#fff" stroke="#000"/>
+            <text x="510" y="139" text-anchor="middle" font-size="11" font-family="Times New Roman, serif">Compute W₃</text>
+            <rect x="580" y="28" width="100" height="36" fill="#fff" stroke="#000"/>
+            <text x="630" y="51" text-anchor="middle" font-size="11" font-family="Times New Roman, serif">Contradict</text>
+            <rect x="580" y="72" width="100" height="36" fill="#fff" stroke="#000"/>
+            <text x="630" y="95" text-anchor="middle" font-size="11" font-family="Times New Roman, serif">Modality</text>
+            <rect x="580" y="116" width="100" height="36" fill="#f0f0f0" stroke="#000"/>
+            <text x="630" y="139" text-anchor="middle" font-size="11" font-family="Times New Roman, serif">Calc plane</text>
+            <line x1="402" y1="70" x2="458" y2="46" stroke="#000" marker-end="url(#arrow)"/>
+            <line x1="402" y1="81" x2="458" y2="90" stroke="#000" marker-end="url(#arrow)"/>
+            <line x1="402" y1="95" x2="458" y2="134" stroke="#000" marker-end="url(#arrow)"/>
+            <line x1="560" y1="46" x2="578" y2="46" stroke="#000" marker-end="url(#arrow)"/>
+            <line x1="560" y1="90" x2="578" y2="90" stroke="#000" marker-end="url(#arrow)"/>
+            <line x1="560" y1="134" x2="578" y2="134" stroke="#000" marker-end="url(#arrow)"/>
+            <line x1="680" y1="90" x2="718" y2="90" stroke="#000" marker-end="url(#arrow)"/>
+            <rect x="720" y="62" width="78" height="56" fill="#eee" stroke="#000"/>
+            <text x="759" y="88" text-anchor="middle" font-size="12" font-family="Times New Roman, serif" font-weight="700">κ̃, Ψ</text>
+            <text x="759" y="104" text-anchor="middle" font-size="10" font-family="Times New Roman, serif">aggregate</text>
+            <line x1="798" y1="90" x2="828" y2="90" stroke="#000" marker-end="url(#arrow)"/>
+            <rect x="830" y="48" width="70" height="40" fill="#000"/>
+            <text x="865" y="73" text-anchor="middle" font-size="12" fill="#fff" font-family="Times New Roman, serif" font-weight="700">Γ</text>
+            <line x1="865" y1="88" x2="865" y2="118" stroke="#000" marker-end="url(#arrow)"/>
+            <rect x="820" y="120" width="90" height="48" fill="#eee" stroke="#000"/>
+            <text x="865" y="142" text-anchor="middle" font-size="12" font-family="Times New Roman, serif" font-weight="700">Packet P</text>
+            <text x="865" y="158" text-anchor="middle" font-size="10" font-family="Times New Roman, serif">δ, σ</text>
+            <rect x="12" y="280" width="896" height="125" fill="none" stroke="#000" stroke-dasharray="5 4"/>
+            <text x="24" y="300" font-family="Times New Roman, serif" font-size="13" font-style="italic">Custody plane (L0–L5)</text>
+            <rect x="50" y="320" width="100" height="50" fill="#fff" stroke="#000"/>
+            <text x="100" y="350" text-anchor="middle" font-size="12" font-family="Times New Roman, serif" font-weight="700">User u</text>
+            <line x1="150" y1="345" x2="200" y2="345" stroke="#000" marker-end="url(#arrow)"/>
+            <rect x="202" y="320" width="120" height="50" fill="#eee" stroke="#000"/>
+            <text x="262" y="342" text-anchor="middle" font-size="12" font-family="Times New Roman, serif" font-weight="700">Sleeve R</text>
+            <text x="262" y="358" text-anchor="middle" font-size="10" font-family="Times New Roman, serif">strip identity</text>
+            <line x1="322" y1="345" x2="375" y2="345" stroke="#000" marker-end="url(#arrow)"/>
+            <rect x="377" y="320" width="130" height="50" fill="#fff" stroke="#000"/>
+            <text x="442" y="342" text-anchor="middle" font-size="12" font-family="Times New Roman, serif" font-weight="700">Compute m</text>
+            <text x="442" y="358" text-anchor="middle" font-size="10" font-family="Times New Roman, serif">on-node / catalog</text>
+            <line x1="507" y1="345" x2="560" y2="345" stroke="#000" marker-end="url(#arrow)"/>
+            <rect x="562" y="320" width="130" height="50" fill="#fff" stroke="#000"/>
+            <text x="627" y="342" text-anchor="middle" font-size="12" font-family="Times New Roman, serif" font-weight="700">Validators</text>
+            <text x="627" y="358" text-anchor="middle" font-size="10" font-family="Times New Roman, serif">|σ| ≥ q</text>
+            <path d="M692 345 C 760 345, 800 250, 865 168" fill="none" stroke="#000" stroke-dasharray="3 3" marker-end="url(#arrow)"/>
+            <text x="780" y="280" font-size="10" font-family="Times New Roman, serif" font-style="italic">cosign δ</text>
+            <text x="50" y="395" font-size="10" font-family="Times New Roman, serif">ρ(B): restricted → on-node · fail-closed if ¬A_private</text>
+          </svg>
+          <figcaption>Fig. 1. Refraction Mesh: witness lattice coupled to sleeve/custody plane and cosigned packet sealing.</figcaption>
+        </figure>
+        <p>Spectral conflict intensity:</p>
+        <div class="wp-eq">\[\kappa_i=\frac{t_i}{s_i+t_i+\varepsilon},\qquad \varepsilon&gt;0 \tag{1}\]</div>
+        <p>ProofPath packet:</p>
+        <div class="wp-eq">\[P=\big(Q,R,\mathcal{M}_{\mathrm{handles}},C,\{(W_k,v_{i,k})\},\mathcal{N},G,\delta,\sigma\big) \tag{2}\]</div>
+        <p>Orthogonality of plane errors $E_k$:</p>
+        <div class="wp-eq">\[\Omega = 1 - \frac{2}{m(m-1)}\sum_{k&lt;\ell}\mathrm{Corr}(E_k,E_\ell) \tag{3}\]</div>
+        <p>
+          Low $\Omega$ diagnoses collapsed diversity (e.g., all compute planes calling one provider) <a href="#r5">[5]</a>.
+        </p>
+        <h3>Weighted spectral measure and soft gate</h3>
+        <p>
+          Planes need not be equipotent. With weights $w_k&gt;0$, $\sum_k w_k=1$, define
+          $S_i=\sum_{k:v_{i,k}=\mathsf{support}} w_k$,
+          $T_i=\sum_{k:v_{i,k}=\mathsf{contest}} w_k$,
+          $U_i=\sum_{k:v_{i,k}=\mathsf{unknown}} w_k$.
+        </p>
+        <div class="wp-eq">\[
+          \kappa_i^{(w)}=\frac{T_i}{S_i+T_i+\varepsilon},\qquad
+          \tilde{\kappa}_i=\kappa_i^{(w)}\,(1-\alpha U_i) \tag{1b}
+        \]</div>
+        <div class="wp-eq">\[
+          \Psi(P)=\exp\!\Big(-\beta\sum_{i=1}^{n}\tilde{\kappa}_i\Big)\cdot\mathbf{1}\!\big[\min_i|\mathcal{W}_i|\ge q_{\min}\big] \tag{1c}
+        \]</div>
+        <h3>Sleeve information bound</h3>
+        <div class="wp-eq">\[
+          I(U;L_m)\le I(U;R)+I(U;M\mid R) \tag{1d}
+        \]</div>
+        <h3>Cross-modal consistency functional</h3>
+        <div class="wp-eq">\[
+          \phi(c)=1-\frac{\|e_a(c)-e_b(c)\|_2}{\|e_a(c)\|_2+\|e_b(c)\|_2+\varepsilon} \tag{1e}
+        \]</div>
+        <p>
+          The modality plane returns $\mathsf{contest}$ when $\phi(c)&lt;\tau_\phi$.
+          Soft score $\Psi$ recovers hard gate $\Gamma$ by thresholding under the strict contest rule.
+        </p>
+
+      </section>
+
+      <section id="multi">
+        <h2 data-num="05">Multimodal Calculation Plane</h2>
+        <p>
+          Multimodal desks do not only chat; they calculate.
+          Let $\mathrm{Calc}$ be a deterministic interpreter over numeric relations:
+        </p>
+        <div class="wp-eq">\[\mathrm{Calc}(c_i)\mapsto\{\mathsf{match},\mathsf{mismatch},\mathsf{n/a}\} \tag{4}\]</div>
+        <p>
+          A $\mathsf{mismatch}$ increments $t_i$ exactly as a contesting witness would.
+          This is deliberate: language models are strong at fluency and weak at reliable arithmetic consistency with tables
+          <a href="#r5">[5]</a>, <a href="#r1">[1]</a>.
+          A calc veto is cheaper and more auditable than hoping a second model “notices.”
+          Streaming tokens remain a latency surface; sealed packets are the product of record.
+        </p>
+      </section>
+
+      <section id="decentral">
+        <h2 data-num="06">Decentralized Dual Fabric</h2>
+        <p>
+          <strong>Principle:</strong> decentralized-first, centralized-explicit.
+          Roles comprise hub $\mathcal{H}$, sleeve relay $\mathcal{R}$, compute $\mathcal{C}$, witness feeds $\mathcal{F}$, and desk $\mathcal{D}$.
+          Network-finality requires $|\sigma|\ge q$ for quorum $q$ <a href="#r12">[12]</a>, <a href="#r19">[19]</a>.
+          Images and sealed PDFs are high-value exfiltration targets; restricted multimodal inference defaults on-node.
+          When a catalog vision route is required, RMA mandates explicit labeling, packet provenance, optional sleeve, and never silent fallback.
+        </p>
+      </section>
+
+      <section id="protect">
+        <h2 data-num="07">Data Protection Stack</h2>
+
+        <figure class="wp-figure" id="fig-custody">
+          <svg class="arch-svg" viewBox="0 0 900 230" xmlns="http://www.w3.org/2000/svg">
+            <defs><marker id="a2" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L5,3 L0,6 Z"/></marker></defs>
+            <text x="20" y="28" font-family="Times New Roman, serif" font-size="14" font-weight="700">Data-protection stack as a pipeline</text>
+            <rect x="20" y="50" width="120" height="70" fill="#f5f5f5" stroke="#000"/>
+            <text x="80" y="80" text-anchor="middle" font-size="13" font-family="Times New Roman, serif" font-weight="700">L0 λ</text>
+            <text x="80" y="98" text-anchor="middle" font-size="10" font-family="Times New Roman, serif">classify</text>
+            <line x1="140" y1="85" x2="165" y2="85" stroke="#000" marker-end="url(#a2)"/>
+            <rect x="168" y="50" width="120" height="70" fill="#fff" stroke="#000"/>
+            <text x="228" y="80" text-anchor="middle" font-size="13" font-family="Times New Roman, serif" font-weight="700">L1 sleeve</text>
+            <text x="228" y="98" text-anchor="middle" font-size="10" font-family="Times New Roman, serif">I(U;Lm)↓</text>
+            <line x1="288" y1="85" x2="313" y2="85" stroke="#000" marker-end="url(#a2)"/>
+            <rect x="316" y="50" width="120" height="70" fill="#f5f5f5" stroke="#000"/>
+            <text x="376" y="80" text-anchor="middle" font-size="13" font-family="Times New Roman, serif" font-weight="700">L2 handles</text>
+            <text x="376" y="98" text-anchor="middle" font-size="10" font-family="Times New Roman, serif">h=Hash</text>
+            <line x1="436" y1="85" x2="461" y2="85" stroke="#000" marker-end="url(#a2)"/>
+            <rect x="464" y="50" width="120" height="70" fill="#fff" stroke="#000"/>
+            <text x="524" y="80" text-anchor="middle" font-size="13" font-family="Times New Roman, serif" font-weight="700">L3 crypto</text>
+            <text x="524" y="98" text-anchor="middle" font-size="10" font-family="Times New Roman, serif">TTL</text>
+            <line x1="584" y1="85" x2="609" y2="85" stroke="#000" marker-end="url(#a2)"/>
+            <rect x="612" y="50" width="120" height="70" fill="#f5f5f5" stroke="#000"/>
+            <text x="672" y="80" text-anchor="middle" font-size="13" font-family="Times New Roman, serif" font-weight="700">L4 route</text>
+            <text x="672" y="98" text-anchor="middle" font-size="10" font-family="Times New Roman, serif">label r</text>
+            <line x1="732" y1="85" x2="757" y2="85" stroke="#000" marker-end="url(#a2)"/>
+            <rect x="760" y="50" width="120" height="70" fill="#000"/>
+            <text x="820" y="80" text-anchor="middle" font-size="13" fill="#fff" font-family="Times New Roman, serif" font-weight="700">L5</text>
+            <text x="820" y="98" text-anchor="middle" font-size="10" fill="#ddd" font-family="Times New Roman, serif">fail-closed</text>
+            <text x="450" y="160" text-anchor="middle" font-size="12" font-family="Times New Roman, serif">Accept(B)=false if λ=restricted ∧ ¬A_private</text>
+            <text x="450" y="185" text-anchor="middle" font-size="11" font-family="Times New Roman, serif" font-style="italic">Custody is a protocol pipeline, not a privacy banner.</text>
+          </svg>
+          <figcaption>Fig. 2. Six-layer data-protection stack with fail-closed termination.</figcaption>
+        </figure>
+
+        <p>
+          Product UIs often reduce “privacy” to a banner. RMA treats custody as a layered protocol with explicit failure modes.
+          Let sensitivity $\lambda(B)\in\{\mathsf{public},\mathsf{internal},\mathsf{restricted}\}$.
+        </p>
+        <h3>A. L0 — Classification</h3>
+        <div class="wp-eq">\[
+          \rho(B)=
+          \begin{cases}
+          \mathsf{on\text{-}node}, & \lambda(B)=\mathsf{restricted}\\
+          \mathsf{prefer\text{-}node}, & \lambda(B)=\mathsf{internal}\\
+          \mathsf{any\text{-}labeled}, & \lambda(B)=\mathsf{public}
+          \end{cases} \tag{5}
+        \]</div>
+        <p>Under-labeling violates custody goal G3; over-labeling reduces utility.</p>
+        <h3>B. L1 — Privacy Sleeves (Data in Motion)</h3>
+        <p>
+          Requester $u$ submits ciphertext task $\widetilde{T}$. Relay $\mathcal{R}$ strips transport identity before compute
+          <a href="#r14">[14]</a>. Private mode targets near-zero mutual information $I(U;L_m)\approx 0$ between requester identity
+          and compute-side logs, acknowledging global passive adversaries remain out of scope.
+        </p>
+        <h3>C. L2 — Minimization and Handles</h3>
+        <p>
+          Packets store $h(m_j)=\mathrm{Hash}(m_j)$ and excerpts, not entire archives.
+          Raw blobs remain in desk-controlled storage—separating auditability from retention of pixels.
+        </p>
+        <h3>D. L3 — Encryption and Retention</h3>
+        <p>
+          Desk artifacts SHOULD be encrypted under desk keys.
+          Negative-evidence rows may outlive raw media when policy requires audit without keeping biometrics—a deliberate asymmetry.
+        </p>
+        <h3>E. L4 — Route Provenance</h3>
+        <p>
+          Every reply/packet records $r\in\{\mathsf{decentralized/on\text{-}node},\,\mathsf{centralized/catalog}\}$.
+          Silent offload is a protocol violation even if the answer is “correct.” Honesty is part of security.
+        </p>
+        <h3>F. L5 — Fail-Closed</h3>
+        <div class="wp-eq">\[
+          \lambda(B)=\mathsf{restricted}\ \land\ \neg A_{\mathrm{private}}\ \Rightarrow\ \mathrm{Accept}(B)=\mathsf{false} \tag{6}
+        \]</div>
+        <p>
+          Fail-open assistants optimize engagement; fail-closed desks optimize non-exfiltration.
+          Sleeves are not endpoint security; screenshots bypass packet controls; DP is not claimed for generative outputs <a href="#r22">[22]</a>.
+          The contribution is a coherent custody control plane aligned with high-stakes desk practice.
+        </p>
+      </section>
+
+      <section id="proofpath">
+        <h2 data-num="08">ProofPath Protocol</h2>
+        <p>
+          Atomize → Witness → Contradict → Negative evidence → Replay → Publish gate.
+          Empty searches are first-class rows in $\mathcal{N}$ <a href="#r17">[17]</a>, not silence.
+          If restricted and private capacity is unavailable, the algorithm refuses before inference (L5).
+        </p>
+      </section>
+
+      <section id="gate">
+        <h2 data-num="09">Publish Gate Formalism</h2>
+        <p>Policy $\Pi=(\tau_\kappa,q_{\min},\mathcal{W}_{\mathrm{req}},\mathsf{strict})$ induces $\Gamma(P,\Pi)\in\{\mathsf{ready},\mathsf{review},\mathsf{blocked}\}$:</p>
+        <div class="wp-eq">\[
+          \begin{aligned}
+          \mathsf{blocked} &\Leftarrow \exists\,c_i:\ \kappa_i\ge\tau_\kappa\ \land\ \mathsf{strict}\\
+          \mathsf{ready} &\Leftarrow \forall\,c_i:\ \kappa_i&lt;\tau_\kappa\ \land\ |\mathcal{W}_i|\ge q_{\min}\\
+          \mathsf{review} &\Leftarrow \text{otherwise}
+          \end{aligned} \tag{7}
+        \]</div>
+        <p>Export refuses $\mathsf{blocked}$ packets by default—editorial caution as a predicate <a href="#r18">[18]</a>.</p>
+      </section>
+
+      <section id="novelty">
+        <h2 data-num="10">Novelty and Positioning</h2>
+        <p>
+          Scientific novelty in systems work is often compositional: a new arrangement of known primitives that enables new guarantees.
+          RMA’s claim is of that kind—not a new backbone, but a new control plane. We position it as eight numbered claims.
+        </p>
+        <ol class="wp-novelty">
+          <li><strong>N1 — Typed multimodal atoms.</strong> Unlike single-score chat and limited FEVER extractors <a href="#r8">[8]</a>, <a href="#r9">[9]</a>, RMA refracts bundles into $\tau(c_i)\in\{\mathsf{text},\mathsf{vision},\mathsf{doc},\mathsf{table},\mathsf{calc},\mathsf{cross}\}$.</li>
+          <li><strong>N2 — Deterministic calc veto.</strong> Unlike RAG/LLM stacks that hope a second model notices arithmetic errors <a href="#r10">[10]</a>, <a href="#r1">[1]</a>, $\mathrm{Calc}$ can increment $t_i$ via $\mathsf{mismatch}$.</li>
+          <li><strong>N3 — Orthogonal witness quora.</strong> Unlike corpus-only checking <a href="#r8">[8]</a>, publication requires multi-plane votes with measurable orthogonality $\Omega$ (Eq.&nbsp;3).</li>
+          <li><strong>N4 — Negative evidence as schema.</strong> Unlike ephemeral UI traces, empty searches are first-class rows in $\mathcal{N}$ <a href="#r17">[17]</a>.</li>
+          <li><strong>N5 — Export-blocking gate $\Gamma$.</strong> Unlike soft scores, $\Gamma\in\{\mathsf{ready},\mathsf{review},\mathsf{blocked}\}$ can refuse export under $\kappa_i\ge\tau_\kappa$ <a href="#r18">[18]</a>.</li>
+          <li><strong>N6 — Durable cosigned packets.</strong> Unlike multi-agent debate that discards intermediate turns <a href="#r6">[6]</a>, <a href="#r7">[7]</a>, RMA seals $(G,\delta,\sigma)$ for replay.</li>
+          <li><strong>N7 — Structured epistemic notarization.</strong> Unlike ledger blob timestamps alone <a href="#r19">[19]</a>, cosigning covers claims, votes, absences, and gate—not only existence at time $t$.</li>
+          <li><strong>N8 — Fail-closed custody protocol.</strong> Unlike “private chat” product modes, L0–L5 encode classification, sleeves <a href="#r14">[14]</a>, handles, encryption, route honesty, and $\mathrm{Accept}(B)=\mathsf{false}$ when private capacity is missing.</li>
+        </ol>
+        <h3>Worked example (sketch)</h3>
+        <p>
+          Prose asserts a \$12M diversion in March 2025 with a budget PDF image.
+          Atoms $c_1$–$c_4$ plus a $\mathsf{cross}/\mathsf{calc}$ link are formed.
+          If the temporal plane contests March while calc matches \$12M, $\kappa_2$ rises and strict $\Gamma$ returns $\mathsf{blocked}$.
+          An empty FOIA hit enters $\mathcal{N}$—absence as evidence <a href="#r17">[17]</a>.
+        </p>
+      </section>
+
+      <section id="concl">
+        <h2 data-num="11">Conclusion</h2>
+        <p>
+          We presented RMA as a research systems design for multimodal, decentralized, custody-aware claim verification.
+          By refracting composites into typed atoms, measuring spectral conflict across orthogonal planes, protecting data
+          through a fail-closed stack, and sealing publish decisions under Proof-of-Inference cosignatures, RMA offers
+          high-stakes desks a path to use generative models without surrendering epistemic standards or case files to a single cloud.
+        </p>
+      </section>
+
+      <section id="refs">
+        <h2 data-num="12">References</h2>
+        <ol class="wp-refs ieee-refs">
+          <li id="r1">{OpenAI}, “GPT-4 technical report,” <em>arXiv:2303.08774</em>, 2023.</li>
+          <li id="r2">R. Bommasani <em>et al.</em>, “On the opportunities and risks of foundation models,” <em>arXiv:2108.07258</em>, 2021.</li>
+          <li id="r3">L. Ouyang <em>et al.</em>, “Training language models to follow instructions with human feedback,” in <em>Proc. NeurIPS</em>, 2022.</li>
+          <li id="r4">S. Vosoughi, D. Roy, and S. Aral, “The spread of true and false news online,” <em>Science</em>, vol. 359, no. 6380, pp. 1146–1151, 2018.</li>
+          <li id="r5">E. M. Bender <em>et al.</em>, “On the dangers of stochastic parrots,” in <em>Proc. FAccT</em>, 2021.</li>
+          <li id="r6">J. Wei <em>et al.</em>, “Chain-of-thought prompting…,” in <em>Proc. NeurIPS</em>, 2022.</li>
+          <li id="r7">W. Chen <em>et al.</em>, “AgentVerse…,” in <em>Proc. ICLR</em>, 2024.</li>
+          <li id="r8">J. Thorne <em>et al.</em>, “FEVER…,” in <em>Proc. NAACL-HLT</em>, 2018.</li>
+          <li id="r9">Z. Guo <em>et al.</em>, “A survey on automated fact-checking,” <em>TACL</em>, vol. 10, 2022.</li>
+          <li id="r10">P. Lewis <em>et al.</em>, “Retrieval-augmented generation…,” in <em>Proc. NeurIPS</em>, 2020.</li>
+          <li id="r11">L. Lamport <em>et al.</em>, “The Byzantine generals problem,” <em>ACM TOPLAS</em>, 1982.</li>
+          <li id="r12">M. Castro and B. Liskov, “Practical Byzantine fault tolerance,” in <em>Proc. OSDI</em>, 1999.</li>
+          <li id="r13">R. C. Merkle, “A digital signature based on a conventional encryption function,” in <em>Proc. CRYPTO</em>, 1987.</li>
+          <li id="r14">D. L. Chaum, “Untraceable electronic mail…,” <em>Commun. ACM</em>, 1981.</li>
+          <li id="r15">K. Bonawitz <em>et al.</em>, “Practical secure aggregation…,” in <em>Proc. ACM CCS</em>, 2017.</li>
+          <li id="r16">D. J. Bernstein <em>et al.</em>, “High-speed high-security signatures,” <em>J. Cryptogr. Eng.</em>, 2012.</li>
+          <li id="r17">C. Silverman, <em>Verification Handbook</em>, 2015.</li>
+          <li id="r18">L. Graves, “Understanding the promise and limits of automated fact-checking,” Reuters Institute, 2018.</li>
+          <li id="r19">S. Nakamoto, “Bitcoin…,” 2008.</li>
+          <li id="r20">A. Radford <em>et al.</em>, “Learning transferable visual models…,” in <em>Proc. ICML</em>, 2021.</li>
+          <li id="r21">S. Yin <em>et al.</em>, “A survey on multimodal large language models,” <em>Natl. Sci. Rev.</em>, 2024.</li>
+          <li id="r22">C. Dwork <em>et al.</em>, “Calibrating noise to sensitivity…,” in <em>Proc. TCC</em>, 2006.</li>
+        </ol>
+      </section>
+    </article>
+  </div>
+
+  <footer class="site-footer">
+    <p>Typeset PDF is authoritative · <a href="/downloads/refraction_mesh.pdf">Download IEEEtran PDF</a></p>
+  </footer>
+  
+  <script>
+  (() => {
+    const bar = document.getElementById('wpProgress');
+    const links = [...document.querySelectorAll('.wp-toc a[href^="#"]')];
+    const sections = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+    function onScroll() {
+      const doc = document.documentElement;
+      const max = doc.scrollHeight - window.innerHeight;
+      if (bar) bar.style.width = ((max > 0 ? window.scrollY / max : 0) * 100) + '%';
+      let current = sections[0];
+      for (const s of sections) if (s.getBoundingClientRect().top <= 120) current = s;
+      links.forEach(a => a.classList.toggle('is-on', current && a.getAttribute('href') === '#' + current.id));
+      const active = links.find(a => a.classList.contains('is-on'));
+      const toc = document.querySelector('.wp-toc');
+      if (active && toc) {
+        const ar = active.getBoundingClientRect(), tr = toc.getBoundingClientRect();
+        if (ar.top < tr.top + 8 || ar.bottom > tr.bottom - 8) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+  </script>
+  <script src="/static/site.js?v=230"></script>
+</body>
+</html>

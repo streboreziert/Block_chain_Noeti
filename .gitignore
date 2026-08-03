@@ -1,0 +1,51 @@
+# Secrets & local env
+.env
+.env.*
+!.env.example
+.team_site_users.env
+*.wallet.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Rust / Node
+**/target/
+node_modules/
+dist/
+.next/
+coverage/
+
+# Runtime / local data
+data/wallets/
+data/nodes/
+**/connection-layer/data/
+entry_registry.json
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Local-only ops notes
+SERVER_SETUP.md
+
+# Keys & certs
+*.pem
+*.key
+!*.key.example
+id_rsa
+id_rsa.*
+*.p12
+*.pfx
+credentials.json
+secrets.json
+.env.openrouter
+.env.federation
+.env.federation.peer

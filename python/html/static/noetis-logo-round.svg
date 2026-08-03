@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none" role="img" aria-label="Noeti Compute Lab">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a120e"/>
+      <stop offset="100%" stop-color="#030806"/>
+    </linearGradient>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ff88"/>
+      <stop offset="100%" stop-color="#00ccff"/>
+    </linearGradient>
+    <clipPath id="circle">
+      <circle cx="256" cy="256" r="256"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#circle)">
+    <!-- background -->
+    <circle cx="256" cy="256" r="256" fill="url(#bg)"/>
+    <circle cx="256" cy="256" r="240" stroke="rgba(0,255,136,0.15)" stroke-width="2"/>
+    <!-- subtle grid -->
+    <line x1="0" y1="128" x2="512" y2="128" stroke="rgba(0,255,136,0.04)" stroke-width="1"/>
+    <line x1="0" y1="256" x2="512" y2="256" stroke="rgba(0,255,136,0.04)" stroke-width="1"/>
+    <line x1="0" y1="384" x2="512" y2="384" stroke="rgba(0,255,136,0.04)" stroke-width="1"/>
+    <line x1="128" y1="0" x2="128" y2="512" stroke="rgba(0,255,136,0.04)" stroke-width="1"/>
+    <line x1="256" y1="0" x2="256" y2="512" stroke="rgba(0,255,136,0.04)" stroke-width="1"/>
+    <line x1="384" y1="0" x2="384" y2="512" stroke="rgba(0,255,136,0.04)" stroke-width="1"/>
+    <!-- brackets -->
+    <g transform="translate(256,248) scale(2.8)">
+      <path d="M-52 -28 L-52 28 M-52 -28 L-44 -28 M-52 28 L-44 28" stroke="#00ff88" stroke-width="2.5" stroke-linecap="square" opacity="0.55"/>
+      <path d="M52 -28 L52 28 M52 -28 L44 -28 M52 28 L44 28" stroke="#00ff88" stroke-width="2.5" stroke-linecap="square" opacity="0.55"/>
+      <!-- mesh -->
+      <circle cx="0" cy="-18" r="9" stroke="url(#g)" stroke-width="2" fill="#030806" filter="url(#glow)"/>
+      <circle cx="-22" cy="22" r="9" stroke="#00ff88" stroke-width="2" fill="#0a120e"/>
+      <circle cx="22" cy="22" r="9" stroke="#00ff88" stroke-width="2" fill="#0a120e"/>
+      <circle cx="0" cy="2" r="8" fill="#00ff88" filter="url(#glow)"/>
+      <line x1="0" y1="-9" x2="0" y2="-6" stroke="#00ff88" stroke-width="2"/>
+      <line x1="-2" y1="8" x2="-16" y2="16" stroke="#00ff88" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.55"/>
+      <line x1="2" y1="8" x2="16" y2="16" stroke="#00ff88" stroke-width="1.5" stroke-dasharray="3 3" opacity="0.55"/>
+      <line x1="-12" y1="22" x2="12" y2="22" stroke="#00ccff" stroke-width="1.5" opacity="0.35"/>
+    </g>
+    <!-- label -->
+    <text x="256" y="400" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="26" font-weight="600" fill="#00ff88" letter-spacing="2">NOETI</text>
+    <text x="256" y="432" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="14" font-weight="400" fill="#5a8f6a" letter-spacing="3">COMPUTE LAB</text>
+  </g>
+</svg>

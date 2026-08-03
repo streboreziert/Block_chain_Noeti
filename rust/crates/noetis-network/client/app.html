@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="noetis-hub" content="{{HUB_URL}}" />
+  <meta name="theme-color" content="#030806" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Noeti</title>
+  <link rel="icon" href="static/icon-192.png" type="image/png" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="static/apple-touch-icon.png" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="static/app.css?v=37" />
+</head>
+<body class="view-chat">
+  <div class="onboard" id="onboard" hidden>
+    <div class="onboard-card">
+      <p class="onboard-brand">noeti</p>
+      <h1>What do you want to do?</h1>
+      <p class="onboard-lead">We’ll install Ollama and a small model automatically.</p>
+      <div class="onboard-actions">
+        <button type="button" class="onboard-btn primary" id="onboardChat">
+          <strong>Chat</strong>
+          <span>Ask the network</span>
+        </button>
+        <button type="button" class="onboard-btn" id="onboardEarn">
+          <strong>Earn</strong>
+          <span>Share compute · get MLC</span>
+        </button>
+        <button type="button" class="onboard-btn dual-only" id="onboardBoth" hidden>
+          <strong>Both</strong>
+          <span>Chat + earn at the same time</span>
+        </button>
+      </div>
+      <p class="onboard-hint">Chat and Earn use separate screens.</p>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <span class="logo">noeti<span>_shell</span></span>
+      <span class="badge version-badge" id="versionBadge" title="Installed software version">app 0.5.35</span>
+      <span class="hub-pill" id="hubPill">…</span>
+      <span class="badge" id="modeBadge">chat</span>
+      <span class="badge" id="chainBadge">…</span>
+      <button type="button" class="ctrl-btn ghost account-btn" id="accountBtn" title="Account">Account</button>
+    </div>
+  </nav>
+
+  <div class="guest-banner" id="guestBanner" hidden>
+    <span>Guest wallet — <button type="button" class="linkish" id="guestBannerSignup">Sign up</button> to keep your wallet forever</span>
+    <button type="button" class="guest-banner-x" id="guestBannerDismiss" aria-label="Dismiss">×</button>
+  </div>
+
+  <div class="shell">
+    <aside class="pane conv-pane" id="convPane">
+      <header class="pane-head">
+        <span>chats</span>
+        <button type="button" class="ctrl-btn ghost conv-new" id="convNewBtn" title="New chat">New</button>
+      </header>
+      <div class="conv-list" id="convList" role="listbox"></div>
+    </aside>
+
+    <section class="pane term-pane">
+      <header class="pane-head">
+        <span>terminal</span>
+        <span class="dim" id="termHint">live log</span>
+      </header>
+      <div id="termOut" class="term-out"></div>
+      <div class="setup-progress" id="setupProgress" hidden>
+        <div class="setup-progress-meta">
+          <span id="setupProgressLabel">Step 1/4 · Preparing</span>
+          <span id="setupProgressPct">0%</span>
+        </div>
+        <p class="setup-progress-detail" id="setupProgressDetail">Working…</p>
+        <div class="setup-progress-track">
+          <div class="setup-progress-fill" id="setupProgressFill"></div>
+        </div>
+      </div>
+      <form id="termForm" class="term-in" autocomplete="off">
+        <span class="prompt">»</span>
+        <input id="termInput" type="text" spellcheck="false" placeholder="help · settings · wallet · status" />
+      </form>
+    </section>
+
+    <section class="pane chat-pane">
+      <header class="pane-head chat-head">
+        <span class="chat-title">Chat</span>
+        <span class="dim" id="chatMeta">new chat · memory on</span>
+        <span class="dim" id="statusLine">connecting…</span>
+        <button type="button" class="phone-earn-chip" id="btnPhoneEarn" aria-pressed="false" hidden>Earn</button>
+        <span class="phone-earn-status" id="phoneEarnStatus" hidden></span>
+        <button type="button" class="ctrl-btn ghost chat-settings" id="settingsBtn" aria-expanded="false" aria-controls="chatSettingsPanel" title="Chat settings">Settings</button>
+        <button type="button" class="ctrl-btn ghost chat-memory" id="memoryToggleBtn" aria-pressed="true" title="Chat memory on — prior turns go with requests">Memory</button>
+        <button type="button" class="ctrl-btn ghost chat-history" id="historyBtn" aria-expanded="false" aria-controls="chatHistoryPanel" title="Chat history">History</button>
+        <button class="ctrl-btn ghost chat-new" id="clearChatBtn" type="button" title="New chat">New chat</button>
+      </header>
+      <div class="chat-settings-panel" id="chatSettingsPanel" hidden>
+        <div class="chat-settings-sheet">
+          <div class="chat-settings-head">
+            <span>Chat settings</span>
+            <button type="button" class="chat-history-close" id="settingsClose" aria-label="Close settings">×</button>
+          </div>
+          <div class="chat-settings-body">
+            <label class="ctrl-label">Spend</label>
+            <div class="seg-btns" id="spendModeGroup">
+              <button type="button" class="seg-btn" data-spend="fast" title="One worker — faster, cheaper">Fast</button>
+              <button type="button" class="seg-btn" data-spend="verified" title="Majority consensus up to 3 workers">Verified</button>
+            </div>
+            <p class="hint settings-help">Fast = 1 worker. Verified = majority (up to 3).</p>
+            <label class="ctrl-label" for="internetToggle">Internet</label>
+            <label class="toggle-row">
+              <input type="checkbox" id="internetToggle" />
+              <span>Internet: fetch live web facts</span>
+            </label>
+            <label class="ctrl-label" for="maxTokensSelect">Max tokens</label>
+            <select id="maxTokensSelect" class="model-select">
+              <option value="256">256</option>
+              <option value="512">512</option>
+              <option value="1024">1024</option>
+              <option value="2048">2048</option>
+            </select>
+            <p class="hint settings-help">Answer length / spend preference for this chat.</p>
+          </div>
+        </div>
+      </div>
+      <div class="chat-history-panel" id="chatHistoryPanel" hidden>
+        <div class="chat-history-backdrop" id="chatHistoryBackdrop"></div>
+        <div class="chat-history-sheet" role="dialog" aria-label="Chat history">
+          <div class="chat-history-head">
+            <span>History</span>
+            <button type="button" class="chat-history-close" id="chatHistoryClose" aria-label="Close history">×</button>
+          </div>
+          <div class="chat-history-list" id="chatHistoryList" role="listbox"></div>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg system" id="chatWelcome">
+          <div class="msg-text">
+            Ask anything. Follow-ups keep prior turns so the network remembers this chat.
+          </div>
+        </div>
+      </div>
+      <div class="chat-composer">
+        <div class="chat-input">
+          <textarea id="promptInput" rows="1" placeholder="Message Noeti…"></textarea>
+          <button class="btn-primary" id="sendBtn" type="button">Send</button>
+        </div>
+      </div>
+      <div class="chat-progress" id="chatProgress" hidden>
+        <div class="chat-progress-label" id="chatProgressLabel">Sending…</div>
+        <div class="progress-bar running" id="progressBar"><span></span></div>
+      </div>
+    </section>
+
+    <section class="pane earn-pane">
+      <header class="pane-head">
+        <span>earn</span>
+        <span class="dim">local compute worker</span>
+      </header>
+      <div class="earn-body">
+        <p class="earn-lead" id="earnLead">Your PC shares inference with the mesh and earns MLC.</p>
+        <div class="earn-status">
+          <div><span class="k">worker</span> <strong id="earnWorker">—</strong></div>
+          <div><span class="k">model</span> <strong id="earnModel">—</strong></div>
+          <div><span class="k">ollama</span> <strong id="earnOllama">—</strong></div>
+        </div>
+        <button type="button" class="ctrl-btn ghost" id="btnStopEarn">Stop earning</button>
+        <p class="hint" id="earnHint">Switch back with the Chat button anytime.</p>
+      </div>
+    </section>
+
+    <aside class="pane side-pane">
+      <header class="pane-head"><span>controls</span></header>
+      <div class="ctrl-block">
+        <div class="ctrl-btns">
+          <button type="button" class="ctrl-btn active" id="btnChat">Chat</button>
+          <button type="button" class="ctrl-btn" id="btnEarn">Earn</button>
+        </div>
+          <div class="version-block">
+            <div class="version-now">You are on <strong id="versionNow">app 0.5.35</strong></div>
+            <div class="version-latest dim" id="versionLatest">checking latest…</div>
+          </div>
+          <button type="button" class="ctrl-btn ghost" id="btnSync">Check for updates</button>
+        <div id="desktopControls">
+          <label class="ctrl-label" for="modelSelect">model</label>
+          <select id="modelSelect" class="model-select">
+            <option value="qwen2.5:0.5b">Tiny — qwen2.5:0.5b (~0.4 GB)</option>
+            <option value="llama3.2:1b">Small — llama3.2:1b (~1.3 GB)</option>
+            <option value="gemma2:2b">Medium — gemma2:2b (~1.6 GB)</option>
+            <option value="llama3.2:3b">Large — llama3.2:3b (~2.0 GB)</option>
+            <option value="qwen2.5:7b">XL — qwen2.5:7b (~4.7 GB)</option>
+          </select>
+          <button type="button" class="ctrl-btn ghost" id="btnPullModel">Download model</button>
+        </div>
+      </div>
+      <header class="pane-head tight"><span>account</span></header>
+      <div class="state-block">
+        <div><span class="k">user</span> <strong id="accountUser">guest</strong></div>
+        <div><span class="k">addr</span> <strong id="accountAddrShort">—</strong></div>
+      </div>
+      <div class="ctrl-btns account-actions">
+        <button type="button" class="ctrl-btn ghost" id="btnLogin">Login</button>
+        <button type="button" class="ctrl-btn ghost" id="btnSignup">Sign up</button>
+        <button type="button" class="ctrl-btn ghost" id="btnLogout" hidden>Logout</button>
+      </div>
+      <header class="pane-head tight"><span>network</span></header>
+      <div class="state-block">
+        <div><span class="k">active</span> <strong id="netActive">—</strong></div>
+        <div><span class="k">compute</span> <strong id="netCompute">—</strong></div>
+        <div><span class="k">relay</span> <strong id="netRelay">—</strong></div>
+        <div><span class="k">tasks</span> <strong id="netTasks">—</strong></div>
+        <div><span class="k">you</span> <strong id="netYou">—</strong></div>
+        <div><span class="k">blocks</span> <strong id="blockCount">—</strong></div>
+      </div>
+      <header class="pane-head tight"><span>state</span></header>
+      <div class="state-block">
+        <div><span class="k">mode</span> <strong id="stateMode">chat</strong></div>
+        <div><span class="k">model</span> <strong id="stateModel">—</strong></div>
+        <div><span class="k">ollama</span> <strong id="stateOllama">—</strong></div>
+        <div><span class="k">worker</span> <strong id="stateWorker">—</strong></div>
+        <div><span class="k">nodes</span> <strong id="nodeCount">—</strong></div>
+      </div>
+      <header class="pane-head tight"><span>wallet</span></header>
+      <div class="wallet-addr" id="walletAddress">—</div>
+      <div class="wallet-bal" id="walletBalance">—</div>
+      <form class="transfer-form" id="transferForm" autocomplete="off">
+        <label class="ctrl-label" for="transferTo">send to</label>
+        <input id="transferTo" type="text" class="xfer-input" placeholder="mlc… or username" spellcheck="false" />
+        <label class="ctrl-label" for="transferAmount">amount (MLC)</label>
+        <input id="transferAmount" type="number" class="xfer-input" min="0.01" step="0.01" placeholder="5" />
+        <button type="submit" class="ctrl-btn ghost" id="transferSendBtn">Send</button>
+      </form>
+      <div class="transfer-log" id="transferLog"></div>
+      <div class="hint">
+        backup: <code>wallet backup</code><br/>
+        faucet: <code>wallet faucet</code><br/>
+        send: <code>wallet transfer &lt;to&gt; &lt;amt&gt;</code>
+      </div>
+      <header class="pane-head tight"><span>mesh</span></header>
+      <div id="nodeCards" class="node-list"></div>
+      <div id="txLog" class="log compact-log"></div>
+    </aside>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="update-modal" id="updateModal" hidden>
+    <div class="update-card" role="dialog" aria-labelledby="updateTitle">
+      <p class="update-brand">noeti</p>
+      <h2 id="updateTitle">Update available</h2>
+      <p class="update-body" id="updateBody">A newer version is ready.</p>
+      <div class="update-versions">
+        <div><span class="k">yours</span> <strong id="updateLocal">—</strong></div>
+        <div><span class="k">latest</span> <strong id="updateRemote">—</strong></div>
+      </div>
+      <div class="update-actions">
+        <button type="button" class="onboard-btn primary" id="updateYes">
+          <strong>Update now</strong>
+          <span>Download and install</span>
+        </button>
+        <button type="button" class="onboard-btn" id="updateNo">
+          <strong>Not now</strong>
+          <span>Keep this version</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="update-modal" id="authModal" hidden>
+    <div class="update-card auth-card" role="dialog" aria-labelledby="authTitle">
+      <p class="update-brand">noeti</p>
+      <h2 id="authTitle">Account</h2>
+      <p class="update-body" id="authBody">Sign up to keep the same wallet forever on this device.</p>
+      <div class="auth-tabs">
+        <button type="button" class="seg-btn active" id="authTabLogin" data-auth-tab="login">Login</button>
+        <button type="button" class="seg-btn" id="authTabSignup" data-auth-tab="signup">Sign up</button>
+      </div>
+      <form id="authForm" class="auth-form" autocomplete="on">
+        <label class="ctrl-label" for="authUsername">username</label>
+        <input id="authUsername" name="username" class="xfer-input" autocomplete="username" spellcheck="false" required />
+        <label class="ctrl-label" for="authPassword">password</label>
+        <input id="authPassword" name="password" type="password" class="xfer-input" autocomplete="current-password" required />
+        <div id="authConfirmWrap" hidden>
+          <label class="ctrl-label" for="authConfirm">confirm</label>
+          <input id="authConfirm" name="confirm" type="password" class="xfer-input" autocomplete="new-password" />
+        </div>
+        <p class="hint" id="authMigrateHint" hidden>Your current guest wallet will be saved into this account.</p>
+        <p class="auth-error" id="authError" hidden></p>
+        <div class="update-actions">
+          <button type="submit" class="onboard-btn primary" id="authSubmit">
+            <strong id="authSubmitLabel">Login</strong>
+            <span id="authSubmitHint">Unlock your wallet</span>
+          </button>
+          <button type="button" class="onboard-btn" id="authCancel">
+            <strong>Cancel</strong>
+            <span>Continue as guest</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="static/app.js?v=37"></script>
+</body>
+</html>

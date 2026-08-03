@@ -1,0 +1,16 @@
+[package]
+name = "noetis-p2p"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+noetis-protocol = { workspace = true }
+noetis-crypto = { workspace = true }
+tokio = { workspace = true }
+tokio-tungstenite = { workspace = true }
+futures-util = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }

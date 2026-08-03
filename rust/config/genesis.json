@@ -1,0 +1,12 @@
+{
+  "chain_id": "noetis-testnet-1",
+  "validators": [
+    { "id": "validator-1", "min_stake": 100 },
+    { "id": "validator-2", "min_stake": 100 },
+    { "id": "validator-3", "min_stake": 100 }
+  ],
+  "consensus": "multi-validator-bft",
+  "block_time_ms": 10000,
+  "faucet_enabled": true,
+  "note": "Friends run full-node with --validator and register their public key. No central server required after bootstrap."
+}

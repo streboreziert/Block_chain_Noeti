@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in — Noeti</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <script src="/static/theme-boot.js?v=230"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/noeti-site.css?v=230" />
+<style>
+    body.maker-login { margin: 0; min-height: 100vh; background: #fff; }
+    .desk-auth { min-height: 100vh; display: grid; place-items: center; padding: 1.5rem; }
+    .desk-auth-card { width: min(400px, 100%); text-align: center; }
+    .desk-auth-card h1 { font-family: "Cinzel", serif; font-weight: 500; margin: 0.8rem 0 0.35rem; }
+    .muted { color: #888; }
+    .muted.small { font-size: 0.8rem; margin-top: 1rem; }
+    .auth-form { display: grid; gap: 0.65rem; text-align: left; margin-top: 1.25rem; }
+    .auth-form input {
+      border: 1px solid #e5e5e5; padding: 0.7rem 0.8rem; font: inherit; border-radius: 8px; width: 100%;
+    }
+    .auth-form button {
+      border: 0; background: #111; color: #fff; padding: 0.7rem 1rem; font: inherit; font-size: 0.72rem;
+      letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; cursor: pointer; border-radius: 8px;
+    }
+    .auth-msg { min-height: 1.2rem; color: #a33; font-size: 0.85rem; margin-top: 0.6rem; }
+    .sidebar-brand { font-family: "Cinzel", serif; color: #111; text-decoration: none; letter-spacing: 0.06em; }
+  </style>
+  <link rel="stylesheet" href="/static/theme.css?v=230" />
+</head>
+<body class="maker-login">
+  <div class="desk-auth">
+    <div class="desk-auth-card">
+      <a class="sidebar-brand" href="/">Noeti</a>
+      <h1 id="loginTitle">Sign in</h1>
+      <p class="muted">Maker access for Chat and Canvas</p>
+      <form class="auth-form" method="post" action="/login" autocomplete="on">
+        <input type="hidden" name="next" id="nextField" value="/canvas" />
+        <input name="username" placeholder="Username" autocomplete="username" required />
+        <input name="password" type="password" placeholder="Password" autocomplete="current-password" required />
+        <button type="submit">Sign in</button>
+      </form>
+      <p class="auth-msg" id="authMsg"></p>
+      <p class="muted small">Early access · invite required · <a href="/">Home</a></p>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var next = params.get("next") || "/canvas";
+      if (next.charAt(0) !== "/" || next.indexOf("//") === 0) next = "/canvas";
+      document.getElementById("nextField").value = next;
+      var title = document.getElementById("loginTitle");
+      if (next.indexOf("chat") !== -1) title.textContent = "Chat";
+      else if (next.indexOf("canvas") !== -1) title.textContent = "Canvas";
+      var err = params.get("auth_error");
+      if (err) document.getElementById("authMsg").textContent = err;
+    })();
+  </script>
+</body>
+</html>

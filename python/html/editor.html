@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Editor — Noeti</title>
+  <meta name="description" content="Noeti Editor — resizable panes, local PC runs, 3D filesystem under explorer." />
+  <link rel="canonical" href="https://noeticompute.com/editor" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <script src="/static/theme-boot.js?v=230"></script>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Syne:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/noeti-site.css?v=230" />
+  <link rel="stylesheet" href="/static/noeti-uniform.css?v=230" />
+  <link rel="stylesheet" href="/static/brain.css?v=230" />
+<link rel="stylesheet" href="/static/noeti-settings.css?v=230" />
+  <link rel="stylesheet" href="/static/editor.css?v=230" />
+  <link rel="stylesheet" href="/static/theme.css?v=230" />
+</head>
+<body class="editor-body" data-theme="white">
+  <div id="authGate" class="desk-auth" style="position:relative;z-index:10000;background:#fff;">
+    <div class="desk-auth-card">
+      <a class="sidebar-brand" href="/">Noeti</a>
+      <h1>Editor</h1>
+      <p class="muted">Maker sign-in unlocks Editor, Chat, and Canvas</p>
+      <form id="authForm" class="auth-form" method="post" action="/login" autocomplete="on">
+        <input type="hidden" name="next" value="/editor" />
+        <input id="authUser" name="username" placeholder="Username" autocomplete="username" required />
+        <input id="authPass" name="password" type="password" placeholder="Password" autocomplete="current-password" required />
+        <button type="submit" id="authSubmit">Sign in</button>
+      </form>
+      <p class="auth-msg" id="authMsg"></p>
+      <p class="muted small auth-early">Early access · invite required</p>
+    </div>
+  </div>
+
+  <div data-auth-app hidden>
+  <nav class="topnav topnav-app" aria-label="Primary">
+    <a class="mark" href="/">Noeti</a>
+    <ul>
+      <li><a href="/about">About</a></li>
+      <li><a href="/philosophy">Philosophy</a></li>
+      <li><a href="/chat">Chat</a></li>
+      <li><a href="/editor" aria-current="page">Editor</a></li>
+      <li><a href="/canvas">Canvas</a></li>
+      <li><a href="/pricing">Pricing</a></li>
+      <li><a href="/pitch">Pitch</a></li>
+      <li><a href="/contact">Contact</a></li>
+    </ul>
+    <button class="nav-toggle" type="button" aria-label="Menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <span class="spacer" aria-hidden="true"></span>
+    <button type="button" class="btn-text" id="btnAuthLogout" style="margin-right:1rem;font-size:0.75rem">Sign out</button>
+  </nav>
+
+  <div class="ed-app">
+    <header class="ed-menubar-wrap">
+      <div class="ed-titlebar">
+        <span class="ed-title-label">Editor</span>
+        <span class="ed-title-sep">/</span>
+        <span class="ed-title-file" id="edTitleFile"></span>
+        <div class="ed-title-right">
+          <button type="button" class="ed-icon-btn" id="edCmdBtn" title="Command palette (⌘/Ctrl+K)">⌘K</button>
+          <button type="button" class="ns-open-btn" id="edSettingsBtn" aria-haspopup="dialog" aria-expanded="false">Settings</button>
+        </div>
+      </div>
+      <nav class="ed-menubar" aria-label="Editor menus" id="edMenubar">
+        <div class="ed-menu">
+          <button type="button" class="ed-menu-btn" data-menu="file">File</button>
+          <div class="ed-menu-drop" data-drop="file" hidden>
+            <button type="button" data-cmd="allow">Open Folder…</button>
+            <button type="button" data-cmd="recent">Open Recent…</button>
+            <hr />
+            <button type="button" data-cmd="save"><span>Save</span><kbd>⌘S</kbd></button>
+            <button type="button" data-cmd="save-all">Save All</button>
+            <button type="button" data-cmd="close-tab">Close Tab</button>
+          </div>
+        </div>
+        <div class="ed-menu">
+          <button type="button" class="ed-menu-btn" data-menu="edit">Edit</button>
+          <div class="ed-menu-drop" data-drop="edit" hidden>
+            <button type="button" data-cmd="find"><span>Find</span><kbd>⌘F</kbd></button>
+            <button type="button" data-cmd="goto-line">Go to Line…</button>
+            <button type="button" data-cmd="apply-helper">Apply Helper Code</button>
+          </div>
+        </div>
+        <div class="ed-menu">
+          <button type="button" class="ed-menu-btn" data-menu="view">View</button>
+          <div class="ed-menu-drop" data-drop="view" hidden>
+            <button type="button" data-cmd="cmd-palette"><span>Command Palette…</span><kbd>⌘K</kbd></button>
+            <hr />
+            <button type="button" data-cmd="toggle-explorer">Explorer</button>
+            <button type="button" data-cmd="toggle-bottom">Bottom Panel</button>
+            <button type="button" data-cmd="toggle-fs-pane">Filesystem pane</button>
+            <hr />
+            <button type="button" data-cmd="layout-default">Layout · Default</button>
+            <button type="button" data-cmd="layout-code">Layout · Code focus</button>
+            <button type="button" data-cmd="layout-split">Layout · Code | Graph</button>
+            <button type="button" data-cmd="layout-term">Layout · Terminal focus</button>
+            <button type="button" data-cmd="layout-helper-right">Layout · Chat on right</button>
+            <button type="button" data-cmd="explorer-right">Move Explorer right</button>
+            <button type="button" data-cmd="layout-reset">Reset sizes</button>
+            <hr />
+            <button type="button" data-cmd="view-code">View · Code</button>
+            <button type="button" data-cmd="view-fs-graph">Filesystem 3D</button>
+            <button type="button" data-cmd="view-mem-graph">Memory 3D</button>
+            <button type="button" data-cmd="view-split">Code + Graph split</button>
+            <button type="button" data-cmd="side-helper">Helper</button>
+            <button type="button" data-cmd="term">Terminal</button>
+            <button type="button" data-cmd="side-memory">Memory</button>
+            <button type="button" data-cmd="side-control">Brain / Where</button>
+          </div>
+        </div>
+        <div class="ed-menu">
+          <button type="button" class="ed-menu-btn" data-menu="run">Run</button>
+          <div class="ed-menu-drop" data-drop="run" hidden>
+            <button type="button" data-cmd="run"><span>Run File</span><kbd>⌘↵</kbd></button>
+            <button type="button" data-cmd="stop">Stop</button>
+            <button type="button" data-cmd="side-run">Run Settings…</button>
+          </div>
+        </div>
+        <div class="ed-menu">
+          <button type="button" class="ed-menu-btn" data-menu="go">Go</button>
+          <div class="ed-menu-drop" data-drop="go" hidden>
+            <a href="/chat">Chat</a>
+            <a href="/canvas">Canvas</a>
+            <a href="/">Home</a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="ed-shell" id="edShell" style="--left-w:300px; --left-graph-h:58%; --bottom-h:240px; --right-w:340px; --view-split:48%;">
+      <!-- layout controls live in Settings (#edSettingsSheet) -->
+      <div id="edLayoutBar" hidden aria-hidden="true"></div>
+
+      <!-- Left: files + 3D graph underneath -->
+      <aside class="ed-left" id="edExplorer" aria-label="Explorer">
+        <div class="ed-left-files" id="edLeftFiles">
+          <div class="ed-files-head">
+            <div class="ed-files-head-text">
+              <span class="ed-files-kicker">Filesystem</span>
+              <strong id="edFsRoot">No folder</strong>
+            </div>
+            <button type="button" class="ed-link" id="edAllow">Open</button>
+          </div>
+          <div class="ed-fs-meta" id="edFsMeta">
+            <span class="ed-fs-pill" id="edFsHost" title="Run target">This PC</span>
+            <span class="ed-fs-path" id="edFsPath" title="Workspace">Allow a project folder</span>
+          </div>
+          <div class="ed-search-wrap">
+            <span class="ed-search-ico" aria-hidden="true">⌕</span>
+            <input type="search" id="edSearch" placeholder="Filter files on this machine…" autocomplete="off" />
+          </div>
+          <div class="ed-file-list" id="edFileList" role="tree"></div>
+          <div class="ed-recent">
+            <div class="ed-files-head ed-files-head-sm"><span>Recent</span></div>
+            <div id="edRecent" class="ed-recent-list"></div>
+          </div>
+        </div>
+        <div class="ed-split ed-split-h" id="edSplitLeft" title="Drag to resize filesystem · double-click to reset"></div>
+        <div class="ed-left-graph" id="edLeftGraph">
+          <div class="ed-left-graph-bar">
+            <span>Filesystem · 3D</span>
+            <button type="button" class="ed-link" id="edGraphExpand" title="Expand">Expand</button>
+          </div>
+          <p class="ed-mini-empty" id="edMiniEmpty">Open a folder to map the tree in 3D</p>
+          <canvas id="edMiniGraph" aria-label="3D filesystem graph"></canvas>
+        </div>
+      </aside>
+
+      <div class="ed-split ed-split-v" id="edSplitVert" title="Drag to resize Explorer · double-click to reset"></div>
+
+      <!-- Center: code + bottom helper -->
+      <section class="ed-center" id="edCenter">
+        <div class="ed-tabs" id="edTabs"></div>
+        <div class="ed-views" id="edViews">
+          <div class="ed-code-wrap" id="edCodeWrap">
+            <div class="ed-code-empty" id="edCodeEmpty">
+              <p class="ed-code-empty-kicker">Editor</p>
+              <p class="ed-code-empty-title">Open a folder to begin</p>
+              <p class="ed-code-empty-lead">Allow a project into Second Brain, then edit and run on your PC.</p>
+              <button type="button" class="ed-btn primary" id="edEmptyOpen">Open Folder</button>
+            </div>
+            <textarea id="edCode" class="ed-code" spellcheck="false" wrap="off" placeholder="" disabled></textarea>
+            <div class="ed-findbar" id="edFindbar" hidden>
+              <input type="search" id="edFindInput" placeholder="Find…" />
+              <label class="ed-find-case" title="Match case"><input type="checkbox" id="edFindCase" /> Aa</label>
+              <button type="button" class="ed-btn" id="edFindPrev" title="Previous">↑</button>
+              <button type="button" class="ed-btn" id="edFindNext" title="Next">↓</button>
+              <input type="search" id="edReplaceInput" placeholder="Replace…" />
+              <button type="button" class="ed-btn" id="edReplaceOne">Replace</button>
+              <button type="button" class="ed-btn" id="edReplaceAll">All</button>
+              <span class="ed-find-count" id="edFindCount"></span>
+              <button type="button" class="ed-link" id="edFindClose">Close</button>
+            </div>
+          </div>
+          <div class="ed-split ed-split-v ed-split-views" id="edSplitViews" title="Drag to resize code / graph · double-click to reset" hidden></div>
+          <div class="ed-graph-wrap" id="edGraphWrap" hidden>
+            <div class="ed-graph-bar">
+              <span id="edGraphLabel">3D memory graph</span>
+              <div class="ed-graph-actions">
+                <button type="button" class="ed-link" data-cmd-graph="fs">Files</button>
+                <button type="button" class="ed-link" data-cmd-graph="memory">Memory</button>
+                <button type="button" class="ed-btn" id="edGraphClose" title="Close graph · back to code">Close ×</button>
+              </div>
+            </div>
+            <canvas id="edGraphCanvas"></canvas>
+            <p class="ed-graph-hint" id="edGraphHint">Open a folder to map memory. Or Close × to return to code.</p>
+          </div>
+        </div>
+
+        <div class="ed-split ed-split-h" id="edSplitBottom" title="Drag to resize bottom panel · double-click to reset"></div>
+
+        <div class="ed-bottom" id="edBottom">
+          <div class="ed-bottom-tabs" id="edBottomTabs">
+            <button type="button" class="is-on" data-panel="helper" draggable="true">Helper</button>
+            <button type="button" data-panel="out" draggable="true">Output</button>
+            <button type="button" data-panel="term" draggable="true">PC Terminal</button>
+            <button type="button" data-panel="problems" draggable="true">Problems</button>
+            <button type="button" data-panel="memory" draggable="true">Memory</button>
+            <button type="button" data-panel="brain" draggable="true">Brain</button>
+            <button type="button" data-panel="run" draggable="true">Run</button>
+            <button type="button" class="ed-bottom-toggle" id="edBottomToggle" title="Collapse / expand" draggable="false">▾</button>
+          </div>
+
+          <div class="ed-bottom-body is-on" data-panel="helper" id="edPaneHelper">
+            <div class="ed-assist-head">
+              <span>Helper</span>
+              <button type="button" class="ed-quiet" id="edModelBtn" title="Cycle model">model</button>
+              <select id="edModel" aria-label="Model" hidden></select>
+            </div>
+            <div class="ed-assist-log" id="edAssistLog"></div>
+            <form class="ed-assist-form" id="edAssistForm">
+              <textarea id="edPrompt" rows="2" placeholder="Ask about this file…"></textarea>
+              <div class="ed-assist-row">
+                <button type="submit" class="ed-btn primary" id="edAsk">Ask</button>
+                <button type="button" class="ed-btn" id="edApply" hidden>Apply</button>
+              </div>
+            </form>
+          </div>
+
+          <pre class="ed-out" id="edOut" data-panel="out" hidden>Ready. Run → Run file.</pre>
+          <div class="ed-term-wrap" data-panel="term" id="edTermWrap" hidden>
+            <header class="ed-term-chrome">
+              <div class="ed-term-chrome-left">
+                <span class="ed-term-dot" aria-hidden="true"></span>
+                <span class="ed-term-kicker">PC Terminal</span>
+                <strong id="edTermHost">This PC</strong>
+              </div>
+              <div class="ed-term-chrome-right">
+                <span class="ed-term-cwd" id="edTermCwd" title="Working context">—</span>
+                <span class="ed-term-live" id="edTermLive">idle</span>
+              </div>
+            </header>
+            <div class="ed-term-log" id="edTerm" role="log" aria-live="polite"></div>
+            <form class="ed-term-form" id="edTermForm" autocomplete="off">
+              <label class="ed-term-prompt" id="edTermPrompt" for="edTermInput">›</label>
+              <input type="text" id="edTermInput" class="ed-term-input" placeholder="Shell on your PC — help · ls · pwd · python -V · run" spellcheck="false" />
+              <button type="submit" class="ed-btn primary" id="edTermGo">Run</button>
+            </form>
+          </div>
+          <pre class="ed-out" id="edProblems" data-panel="problems" hidden></pre>
+
+          <div class="ed-bottom-body" data-panel="memory" id="edPaneMemory" hidden>
+            <div class="ed-mem-stats" id="edMemStats"></div>
+            <div class="ed-mem-actions">
+              <button type="button" class="ed-btn" id="edMemRefresh">Refresh</button>
+              <button type="button" class="ed-btn" id="edMemPin">Pin file</button>
+              <button type="button" class="ed-btn" data-cmd-graph="memory">Memory 3D</button>
+              <button type="button" class="ed-btn" id="edMemClearRuns">Clear runs</button>
+              <button type="button" class="ed-btn" id="edMemClearChat">Clear helper</button>
+            </div>
+            <div class="ed-mem-list" id="edMemList"></div>
+          </div>
+
+          <div class="ed-bottom-body" data-panel="brain" id="edPaneBrain" hidden>
+            <div class="ed-seg-block">
+              <div class="ed-seg-label">Workspace</div>
+              <div class="ed-assist-row" style="margin:0.35rem 0.7rem">
+                <button type="button" class="ed-btn primary" id="edBrainOpen">Open Folder</button>
+                <button type="button" class="ed-btn" id="edBrain">Brain</button>
+              </div>
+              <p class="ed-hint" id="edBrainStatus">No folder indexed</p>
+            </div>
+            <div class="ed-seg-block">
+              <div class="ed-seg-label">Where · run on</div>
+              <div class="ed-seg" id="edWhereSeg" role="group">
+                <button type="button" class="ed-seg-btn is-on" data-where="pc">This PC</button>
+                <button type="button" class="ed-seg-btn" data-where="private">Private</button>
+                <button type="button" class="ed-seg-btn" data-where="server">Server</button>
+                <button type="button" class="ed-seg-btn" data-where="brain">Brain only</button>
+              </div>
+              <select id="edWhere" hidden>
+                <option value="pc">pc</option>
+                <option value="private">private</option>
+                <option value="server">server</option>
+                <option value="brain">brain</option>
+              </select>
+            </div>
+            <div class="ed-seg-block">
+              <div class="ed-seg-label">Paired PC</div>
+              <div class="ed-device-list" id="edDeviceList"></div>
+              <select id="edDevice" hidden></select>
+              <div class="ed-assist-row" style="margin:0.4rem 0.7rem">
+                <a class="ed-quiet" href="/canvas">Connect PC</a>
+                <button type="button" class="ed-quiet" id="edRefreshDevices">Refresh</button>
+              </div>
+            </div>
+            <div class="ed-seg-block">
+              <div class="ed-seg-label">Auto-save</div>
+              <div class="ed-seg" id="edAutoSeg">
+                <button type="button" class="ed-seg-btn is-on" data-auto="1">On</button>
+                <button type="button" class="ed-seg-btn" data-auto="0">Off</button>
+              </div>
+              <select id="edAutoSave" hidden><option value="1">1</option><option value="0">0</option></select>
+            </div>
+            <div class="ed-seg-block">
+              <div class="ed-seg-label">Helper temperature <span id="edTempVal">0.35</span></div>
+              <input type="range" id="edTemp" min="0" max="1.5" step="0.05" value="0.35" class="ed-range" />
+              <input type="number" id="edCtxChars" min="4000" max="48000" step="1000" value="24000" hidden />
+            </div>
+            <div class="ed-seg-block">
+              <div class="ed-seg-label">Pins</div>
+              <div id="edPins" class="ed-pins"></div>
+            </div>
+          </div>
+
+          <div class="ed-bottom-body" data-panel="run" id="edPaneRun" hidden>
+            <div class="ed-seg-block">
+              <div class="ed-seg-label">Language</div>
+              <div class="ed-seg wrap" id="edLangSeg"></div>
+              <select id="edLang" hidden></select>
+            </div>
+            <label class="ed-label">Stdin</label>
+            <textarea id="edStdin" rows="3" placeholder="Optional input…"></textarea>
+            <label class="ed-label">Timeout · <span id="edTimeoutVal">25</span>s</label>
+            <input type="range" id="edTimeout" class="ed-range" min="5" max="60" value="25" />
+            <div class="ed-assist-row" style="margin:0.75rem 0.7rem">
+              <button type="button" class="ed-btn primary" id="edRun2">▶ Run</button>
+              <button type="button" class="ed-btn" id="edStop" disabled>Stop</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="ed-split ed-split-v" id="edSplitRight" title="Drag to resize chat · double-click to reset"></div>
+      <aside class="ed-chat" id="edChat" aria-label="Coding chat">
+        <header class="ed-chat-head">
+          <div>
+            <p class="ed-chat-kicker">Chat</p>
+            <strong id="edChatFile">No file open</strong>
+          </div>
+          <div class="ed-chat-head-actions">
+            <button type="button" class="ed-link" id="edChatClear" title="Clear chat">Clear</button>
+            <button type="button" class="ed-chat-close" id="edChatClose" title="Hide chat">×</button>
+          </div>
+        </header>
+        <div class="ed-chat-chips" id="edChatChips">
+          <button type="button" data-chat-chip="Edit the open file: improve clarity and fix any bugs. Return the full updated file in one code fence.">Edit file</button>
+          <button type="button" data-chat-chip="Explain what this file does, briefly.">Explain</button>
+          <button type="button" data-chat-chip="Find bugs or risks in the open file and propose a fix. Return the full fixed file in one code fence.">Fix</button>
+          <button type="button" data-chat-chip="Refactor the open file for readability without changing behavior. Return the full file in one code fence.">Refactor</button>
+        </div>
+        <div class="ed-chat-log" id="edChatLog"></div>
+        <div class="ed-chat-applybar" id="edChatApplyBar" hidden>
+          <span id="edChatApplyHint">Code ready</span>
+          <button type="button" class="ed-btn primary" id="edChatApply">Apply to file</button>
+          <button type="button" class="ed-btn" id="edChatInsert">Insert</button>
+        </div>
+        <form class="ed-chat-form" id="edChatForm">
+          <textarea id="edChatIn" rows="3" placeholder="Ask to edit this file like Cursor…"></textarea>
+          <div class="ed-chat-form-row">
+            <button type="submit" class="ed-btn primary" id="edChatSend">Send</button>
+            <button type="button" class="ed-quiet" id="edChatStop" hidden>Stop</button>
+          </div>
+        </form>
+      </aside>
+
+      <!-- legacy hooks -->
+      <aside class="ed-right" id="edRight" hidden aria-hidden="true">
+        <div class="ed-right-head">
+          <span id="edRightTitle">Helper</span>
+          <button type="button" class="ed-link" id="edRightClose">↓ Bottom</button>
+        </div>
+        <div class="ed-right-body" id="edRightBody"></div>
+      </aside>
+      <aside class="ed-side" id="edSide" hidden aria-hidden="true"></aside>
+    </div>
+
+    <footer class="ed-statusbar" id="edStatusbar">
+      <span id="edStatus">Ready</span>
+      <span id="edStatLang">—</span>
+      <span id="edStatWhere">pc</span>
+      <span id="edStatMem">mem 0</span>
+      <span id="edStatPos">Ln 1, Col 1</span>
+    </footer>
+
+    <div class="ed-cmd" id="edCmd" hidden>
+      <div class="ed-cmd-card">
+        <input type="search" id="edCmdInput" placeholder="Type a command…" autocomplete="off" />
+        <div class="ed-cmd-list" id="edCmdList"></div>
+      </div>
+    </div>
+
+    <button type="button" id="edRun" hidden></button>
+    <button type="button" id="edSave" hidden></button>
+    <button type="button" id="edGraph" hidden></button>
+    <button type="button" id="edMemory" hidden></button>
+  </div>
+
+  <div class="ns-backdrop" id="edSettingsBackdrop" hidden></div>
+  <aside class="ns-sheet" id="edSettingsSheet" hidden role="dialog" aria-label="Editor settings">
+    <header class="ns-head">
+      <div>
+        <p class="ns-kicker">Editor</p>
+        <h2>Settings</h2>
+      </div>
+      <button type="button" class="ns-close" id="edSettingsClose" aria-label="Close">×</button>
+    </header>
+    <div class="ns-body">
+      <div class="ns-section">
+        <p class="ns-label">Layout</p>
+        <div class="ns-row">
+          <button type="button" class="ns-btn is-on" data-layout="default">Default</button>
+          <button type="button" class="ns-btn" data-layout="code">Code</button>
+          <button type="button" class="ns-btn" data-layout="split">Split</button>
+          <button type="button" class="ns-btn" data-layout="term">Term</button>
+          <button type="button" class="ns-btn" data-layout="helper-right">Chat →</button>
+        </div>
+      </div>
+      <div class="ns-section">
+        <p class="ns-label">Panes</p>
+        <div class="ns-row">
+          <button type="button" class="ns-btn" data-layout-toggle="explorer">Explorer</button>
+          <button type="button" class="ns-btn" data-layout-toggle="bottom">Bottom</button>
+          <button type="button" class="ns-btn" data-layout-toggle="fs">FS 3D</button>
+          <button type="button" class="ns-btn" data-layout-toggle="chat">Chat</button>
+          <button type="button" class="ns-btn" data-layout-toggle="explorer-side">⇄ Side</button>
+          <button type="button" class="ns-btn" data-cmd="layout-reset">Reset sizes</button>
+        </div>
+      </div>
+      <div class="ns-section">
+        <p class="ns-label">Workspace</p>
+        <div class="ns-row">
+          <button type="button" class="ns-btn" data-cmd="allow">Open folder</button>
+          <button type="button" class="ns-btn" data-cmd="brain">Second Brain</button>
+          <button type="button" class="ns-btn" data-cmd="side-control">Where / PC</button>
+          <button type="button" class="ns-btn" data-cmd="term">PC Terminal</button>
+        </div>
+      </div>
+      <div class="ns-section">
+        <p class="ns-label">Go</p>
+        <div class="ns-links">
+          <a href="/chat">Chat</a>
+          <a href="/canvas">Canvas</a>
+          <a href="/">Home</a>
+        </div>
+      </div>
+    </div>
+  </aside>
+  </div>
+
+  <script src="/static/auth_site.js?v=5"></script>
+  <script src="/static/site.js?v=230"></script>
+  <script src="/static/brain.js?v=220"></script>
+  <script src="/static/editor.js?v=230"></script>
+</body>
+</html>

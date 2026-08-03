@@ -1,0 +1,26 @@
+[package]
+name = "noetis-node"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "noetis-node"
+path = "src/main.rs"
+
+[dependencies]
+noetis-protocol = { workspace = true }
+noetis-crypto = { workspace = true }
+noetis-currency = { workspace = true }
+noetis-p2p = { workspace = true }
+tokio = { workspace = true }
+clap = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+reqwest = { workspace = true }
+futures-util = { workspace = true }
+tokio-tungstenite = { workspace = true }
+uuid = { workspace = true }
+anyhow = { workspace = true }
+hex = { workspace = true }

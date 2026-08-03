@@ -1,0 +1,129 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: noetis
+      POSTGRES_PASSWORD: noetis
+      POSTGRES_DB: noetis
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U noetis"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  fullnode1:
+    build:
+      context: .
+      dockerfile: Dockerfile.rust
+    command: noetis-full-node start --validator --p2p-port 4001 --http-port 4000 --data /app/data --wallet /app/data/wallet.json
+    ports:
+      - "4000:4000"
+      - "4001:4001"
+    environment:
+      NOETIS_PUBLIC_HOST: ${PUBLIC_HOST:-fullnode1}
+      RUST_LOG: info
+    volumes:
+      - fullnode1-data:/app/data
+
+  coordinator:
+    build:
+      context: .
+      dockerfile: Dockerfile.rust
+    command: noetis-coordinator
+    ports:
+      - "3002:3002"
+    environment:
+      DATABASE_URL: postgresql://noetis:noetis@postgres:5432/noetis
+      REDIS_URL: redis://redis:6379
+      VALIDATOR_URL: http://validator:3003
+      PORT: 3002
+      INTERNAL_DISPATCH_TOKEN: ${INTERNAL_DISPATCH_TOKEN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  validator:
+    build:
+      context: .
+      dockerfile: Dockerfile.rust
+    command: noetis-validator
+    ports:
+      - "3003:3003"
+    environment:
+      DATABASE_URL: postgresql://noetis:noetis@postgres:5432/noetis
+      PORT: 3003
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.rust
+    command: noetis-api
+    ports:
+      - "3001:3001"
+    environment:
+      DATABASE_URL: postgresql://noetis:noetis@postgres:5432/noetis
+      REDIS_URL: redis://redis:6379
+      COORDINATOR_INTERNAL_URL: http://coordinator:3002
+      FULL_NODE_URL: http://fullnode1:4000
+      PORT: 3001
+      INTERNAL_DISPATCH_TOKEN: ${INTERNAL_DISPATCH_TOKEN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      coordinator:
+        condition: service_started
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.rust
+    command: noetis-web
+    ports:
+      - "3000:3000"
+    environment:
+      API_URL: http://api:3001
+      PORT: 3000
+    depends_on:
+      - api
+
+  node1:
+    build:
+      context: .
+      dockerfile: Dockerfile.rust
+    command: >
+      noetis-node start
+      --coordinator ws://coordinator:3002/ws
+      --p2p-bootstrap ws://fullnode1:4001
+      --p2p-port 4010
+      --ollama http://host.docker.internal:11434
+      --wallet /app/data/wallet.json
+    environment:
+      RUST_LOG: info
+    volumes:
+      - node1-data:/app/data
+    depends_on:
+      - coordinator
+      - fullnode1
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  pgdata:
+  fullnode1-data:
+  node1-data:

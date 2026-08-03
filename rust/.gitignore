@@ -1,0 +1,14 @@
+/target/
+node_modules/
+dist/
+.next/
+.env
+.env.local
+*.log
+.DS_Store
+coverage/
+data/wallets/
+data/nodes/
+*.wallet.json
+apps/web/.next/
+packages/database/migrations/.applied

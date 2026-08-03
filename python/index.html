@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Noetis — decentralized LLM compute network. Turn idle GPUs into useful AI work with Proof-of-Inference instead of wasteful mining." />
+  <title>Noetis — Decentralized AI Compute</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="static/pitch.css" />
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="#" class="logo">Noetis<span>.</span></a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+      <div class="nav-links" id="navLinks">
+        <a href="#problem">Problem</a>
+        <a href="#solution">Solution</a>
+        <a href="#how">How it works</a>
+        <a href="#vision">Vision</a>
+        <a href="#contact" class="btn btn-primary">Get in touch</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="container">
+      <div class="hero-badge">
+        <span class="dot"></span>
+        Research prototype · Live demo available
+      </div>
+      <h1>The compute network where <em>AI work</em> secures the chain</h1>
+      <p class="hero-sub">
+        Noetis replaces wasteful hash mining with distributed LLM inference.
+        Anyone with a GPU contributes real compute — and earns rewards for verified AI output.
+      </p>
+      <div class="hero-cta">
+        <a href="#how" class="btn btn-primary">See how it works</a>
+        <a href="#vision" class="btn btn-ghost">Our vision</a>
+      </div>
+
+      <div class="hero-visual">
+        <svg class="network-svg" viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#4f8cff;stop-opacity:0.3" />
+              <stop offset="100%" style="stop-color:#00d4aa;stop-opacity:0.2" />
+            </linearGradient>
+          </defs>
+          <rect width="900" height="320" fill="#0a0c12"/>
+          <!-- links -->
+          <g stroke="rgba(79,140,255,0.25)" stroke-width="1">
+            <line x1="450" y1="160" x2="150" y2="80"/><line x1="450" y1="160" x2="750" y2="80"/>
+            <line x1="450" y1="160" x2="100" y2="240"/><line x1="450" y1="160" x2="800" y2="240"/>
+            <line x1="450" y1="160" x2="300" y2="50"/><line x1="450" y1="160" x2="600" y2="50"/>
+            <line x1="450" y1="160" x2="450" y2="270"/>
+          </g>
+          <!-- coordinator -->
+          <circle cx="450" cy="160" r="36" fill="url(#glow)" stroke="#4f8cff" stroke-width="2"/>
+          <text x="450" y="158" text-anchor="middle" fill="#f4f5f7" font-family="IBM Plex Mono" font-size="11" font-weight="500">COORDINATOR</text>
+          <text x="450" y="172" text-anchor="middle" fill="#9aa3b2" font-family="IBM Plex Mono" font-size="8">consensus + rewards</text>
+          <!-- workers -->
+          <g font-family="IBM Plex Mono" font-size="10" fill="#9aa3b2">
+            <circle cx="150" cy="80" r="22" fill="#141720" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+            <text x="150" y="84" text-anchor="middle" fill="#f4f5f7">GPU-01</text>
+            <circle cx="750" cy="80" r="22" fill="#141720" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+            <text x="750" y="84" text-anchor="middle" fill="#f4f5f7">GPU-02</text>
+            <circle cx="100" cy="240" r="22" fill="#141720" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+            <text x="100" y="244" text-anchor="middle" fill="#f4f5f7">GPU-03</text>
+            <circle cx="800" cy="240" r="22" fill="#141720" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+            <text x="800" y="244" text-anchor="middle" fill="#f4f5f7">GPU-04</text>
+            <circle cx="300" cy="50" r="22" fill="#141720" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+            <text x="300" y="54" text-anchor="middle" fill="#f4f5f7">GPU-05</text>
+            <circle cx="600" cy="50" r="22" fill="#141720" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+            <text x="600" y="54" text-anchor="middle" fill="#f4f5f7">GPU-06</text>
+            <circle cx="450" cy="270" r="22" fill="#141720" stroke="rgba(0,212,170,0.4)" stroke-width="1"/>
+            <text x="450" y="274" text-anchor="middle" fill="#00d4aa">YOU</text>
+          </g>
+          <text x="450" y="310" text-anchor="middle" fill="#555" font-family="IBM Plex Mono" font-size="9">Prompt in → distributed inference → verified response + MLC rewards out</text>
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="stats-bar">
+      <div class="stat-item"><strong>$50B+</strong><span>Annual AI compute spend</span></div>
+      <div class="stat-item"><strong>90%</strong><span>GPU time sits idle</span></div>
+      <div class="stat-item"><strong>0%</strong><span>Value from Bitcoin mining</span></div>
+      <div class="stat-item"><strong>PoI</strong><span>Proof-of-Inference</span></div>
+    </div>
+  </div>
+
+  <section id="problem">
+    <div class="container">
+      <p class="section-label">The problem</p>
+      <h2 class="section-title">Two broken models holding AI back</h2>
+      <p class="section-desc">
+        Centralized clouds concentrate power and cost. Blockchains burn energy on useless hashes.
+        Neither model scales open AI for everyone.
+      </p>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-icon red">☁</div>
+          <h3>Centralized AI is a bottleneck</h3>
+          <p>
+            A handful of providers control inference. Costs rise, access narrows,
+            and millions of idle GPUs worldwide contribute nothing to the ecosystem.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-icon red">⛏</div>
+          <h3>Crypto mining wastes compute</h3>
+          <p>
+            Proof-of-Work burns electricity on SHA-256 hashes with zero external value.
+            That same hardware could run real AI — but today's chains don't reward it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="solution">
+    <div class="container">
+      <p class="section-label">Our solution</p>
+      <h2 class="section-title">Useful work replaces wasteful mining</h2>
+      <p class="section-desc">
+        Noetis coordinates a mesh of independent nodes that run real LLM inference locally.
+        Consensus verifies outputs. Contributors earn MLC tokens for correct, fast responses.
+      </p>
+      <div class="two-col">
+        <div class="card">
+          <div class="card-icon green">⚡</div>
+          <h3>Proof-of-Inference</h3>
+          <p>
+            Each block records a verified AI task — not a meaningless hash puzzle.
+            Security comes from redundant inference and majority consensus on outputs.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-icon blue">🌐</div>
+          <h3>Open compute mesh</h3>
+          <p>
+            Laptops, desktops, and servers join via simple worker software.
+            No single model host. Compute stays distributed, private, and scalable.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="container">
+      <p class="section-label">How it works</p>
+      <h2 class="section-title">From prompt to reward in four steps</h2>
+      <p class="section-desc">A working prototype demonstrates the full loop — live on a local test network today.</p>
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h3>User submits a prompt</h3>
+          <p>A client sends a query to the network coordinator over a lightweight TCP protocol.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h3>Workers run inference</h3>
+          <p>Independent nodes execute the same task locally using Ollama — real LLM output, not simulated.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h3>Network verifies consensus</h3>
+          <p>The coordinator compares responses. Majority agreement defines correctness. Outliers are flagged.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <h3>Fast workers earn MLC</h3>
+          <p>Nodes matching consensus receive token rewards. Faster responses earn a larger share of the pool.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
+      <p class="section-label">Why Noetis</p>
+      <h2 class="section-title">Built different from day one</h2>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Bitcoin / PoW</th>
+            <th>Centralized API</th>
+            <th>Noetis</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Work performed</td>
+            <td>SHA-256 hashes</td>
+            <td>Vendor-hosted inference</td>
+            <td class="highlight">Distributed LLM inference</td>
+          </tr>
+          <tr>
+            <td>External value</td>
+            <td>None</td>
+            <td>High (but gated)</td>
+            <td class="highlight">High + open access</td>
+          </tr>
+          <tr>
+            <td>Who can contribute</td>
+            <td>ASIC miners</td>
+            <td>Nobody</td>
+            <td class="highlight">Any GPU / CPU owner</td>
+          </tr>
+          <tr>
+            <td>Incentive model</td>
+            <td>Block rewards</td>
+            <td>Subscription fees</td>
+            <td class="highlight">MLC for verified work</td>
+          </tr>
+          <tr>
+            <td>Status</td>
+            <td>Production</td>
+            <td>Production</td>
+            <td class="highlight">Working prototype</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="vision">
+    <div class="container">
+      <p class="section-label">Roadmap</p>
+      <h2 class="section-title">Where we're headed</h2>
+      <p class="section-desc">The connection layer is live. On-chain settlement and production hardening come next.</p>
+      <div class="roadmap">
+        <div class="roadmap-item done">
+          <div class="roadmap-phase">Phase 1 · Done</div>
+          <h4>Connection layer</h4>
+          <p>Socket protocol, worker mesh, Ollama inference, consensus, MLC ledger demo.</p>
+        </div>
+        <div class="roadmap-item active">
+          <div class="roadmap-phase">Phase 2 · Now</div>
+          <h4>Network growth</h4>
+          <p>Onboard early contributors, stress-test incentives, refine verification for non-deterministic AI.</p>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-phase">Phase 3</div>
+          <h4>On-chain settlement</h4>
+          <p>MLC token economics on a blockchain layer. Staking, slashing, Sybil resistance.</p>
+        </div>
+        <div class="roadmap-item">
+          <div class="roadmap-phase">Phase 4</div>
+          <h4>Global mesh</h4>
+          <p>Open inference marketplace — cheap, censorship-resistant AI for developers worldwide.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section" id="contact">
+    <div class="container">
+      <div class="cta-box">
+        <h2>Let's build the open AI compute layer</h2>
+        <p>
+          We're looking for early contributors, technical partners, and investors
+          who believe useful work should replace wasteful mining.
+        </p>
+        <div class="cta-buttons">
+          <a href="mailto:hello@noetis.dev" class="btn btn-primary">hello@noetis.dev</a>
+          <a href="https://github.com" class="btn btn-ghost">View prototype</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <p>Noetis Compute Lab · Decentralized AI inference research · 2026</p>
+      <p style="margin-top:8px"><a href="join.html">Technical setup guide</a></p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("navToggle").addEventListener("click", () => {
+      document.getElementById("navLinks").classList.toggle("open");
+    });
+    document.querySelectorAll('.nav-links a[href^="#"]').forEach((a) => {
+      a.addEventListener("click", () => document.getElementById("navLinks").classList.remove("open"));
+    });
+  </script>
+</body>
+</html>

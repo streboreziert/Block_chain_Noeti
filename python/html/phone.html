@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#111111" />
+  <title>Phone live → Canvas — Noeti</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+  <style>
+    :root { --ok:#1a7a3c; --font:"DM Sans",ui-sans-serif,system-ui,sans-serif; }
+    * { box-sizing: border-box; }
+    html, body { margin:0; min-height:100%; background:#0f0f0f; color:#f5f5f5; font-family:var(--font); }
+    body { padding: max(0.75rem, env(safe-area-inset-top)) 0.85rem max(1.25rem, env(safe-area-inset-bottom)); }
+    .wrap { width:min(440px,100%); margin:0 auto; }
+    .brand { font-weight:600; margin:0 0 0.25rem; font-size:1rem; }
+    .kicker { margin:0 0 0.85rem; color:#aaa; font-size:0.82rem; line-height:1.4; }
+    .status {
+      display:inline-flex; align-items:center; gap:0.4rem; border:1px solid #333; background:#1a1a1a;
+      border-radius:999px; padding:0.35rem 0.7rem; font-size:0.72rem; color:#aaa; margin-bottom:0.85rem;
+    }
+    .status.is-on { border-color:#2a7a45; color:#c8f0d4; }
+    .status.is-live { border-color:#c44; color:#fcc; }
+    .status i { width:0.45rem; height:0.45rem; border-radius:50%; background:#555; display:inline-block; }
+    .status.is-on i { background:var(--ok); }
+    .status.is-live i { background:#e33; box-shadow:0 0 0 3px rgba(220,50,50,.25); }
+    .stage {
+      position:relative; width:100%; aspect-ratio:3/4; max-height:52vh; background:#000;
+      border-radius:18px; overflow:hidden; margin-bottom:0.85rem; border:1px solid #2a2a2a;
+    }
+    video#live { width:100%; height:100%; object-fit:cover; background:#000; transform:scaleX(-1); }
+    .stage-empty { position:absolute; inset:0; display:grid; place-items:center; color:#777; font-size:0.85rem; padding:1rem; text-align:center; }
+    .stage-empty[hidden] { display:none !important; }
+    .actions { display:grid; gap:0.5rem; }
+    .shot {
+      width:100%; border:0; background:#e33; color:#fff; font:inherit; font-size:1.05rem;
+      font-weight:650; padding:1rem; border-radius:999px; cursor:pointer;
+    }
+    .shot.is-live { background:#333; }
+    .ghost {
+      width:100%; border:1px solid #333; background:#1a1a1a; color:#eee; font:inherit;
+      font-size:0.88rem; font-weight:550; padding:0.8rem; border-radius:999px; cursor:pointer;
+    }
+    .row2 { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
+    .row3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.45rem; }
+    .msg { min-height:1.2rem; margin:0.7rem 0 0; font-size:0.82rem; color:#999; }
+    .msg.ok { color:#8fd9a8; } .msg.err { color:#f88; }
+    .hint { margin:0.85rem 0 0; font-size:0.72rem; color:#777; line-height:1.45; }
+    .card { background:#161616; border:1px solid #2a2a2a; border-radius:16px; padding:0.85rem; margin-top:0.75rem; }
+    .card h3 { margin:0 0 0.55rem; font-size:0.78rem; color:#aaa; font-weight:550; }
+    .remote[hidden] { display:none !important; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <p class="brand">Noeti Phone</p>
+    <p class="kicker">Put <strong>live video</strong> into Canvas. Then run / seal from your handset.</p>
+    <div class="status" id="linkStatus"><i></i><span>Connecting…</span></div>
+
+    <div class="stage">
+      <video id="live" playsinline muted autoplay></video>
+      <div class="stage-empty" id="stageEmpty">Allow camera to preview</div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="shot" id="btnLive">Go live → Canvas</button>
+      <div class="row2">
+        <button type="button" class="ghost" id="btnSnap">Send still</button>
+        <button type="button" class="ghost" id="btnFlip">Flip cam</button>
+      </div>
+    </div>
+
+    <section class="card remote" id="remoteCard" hidden>
+      <h3>Remote Canvas</h3>
+      <div class="row3">
+        <button type="button" class="ghost" id="btnRun">Run</button>
+        <button type="button" class="ghost" id="btnVision">Vision</button>
+        <button type="button" class="ghost" id="btnSeal">Seal</button>
+      </div>
+    </section>
+
+    <p class="msg" id="msg"></p>
+    <p class="hint">Keep this page open. Same Wi‑Fi as your computer works best.</p>
+  </main>
+  <script>
+    (function () {
+      var q = new URLSearchParams(location.search);
+      var sid = q.get("s") || "";
+      var token = q.get("t") || "";
+      var localStream = null;
+      var live = false;
+      var frameTimer = 0;
+      var facing = "environment";
+      var video = document.getElementById("live");
+      var stageEmpty = document.getElementById("stageEmpty");
+      var statusEl = document.getElementById("linkStatus");
+      var msg = document.getElementById("msg");
+      var btnLive = document.getElementById("btnLive");
+      var remoteCard = document.getElementById("remoteCard");
+      var sending = false;
+
+      function deviceLabel() {
+        var ua = navigator.userAgent || "";
+        if (/iPhone/i.test(ua)) return "iPhone";
+        if (/Android/i.test(ua)) return "Android";
+        return "Phone";
+      }
+      function setStatus(mode, text) {
+        statusEl.classList.remove("is-on", "is-live");
+        if (mode === "on") statusEl.classList.add("is-on");
+        if (mode === "live") statusEl.classList.add("is-on", "is-live");
+        statusEl.querySelector("span").textContent = text;
+      }
+      function setMsg(t, k) {
+        msg.textContent = t || "";
+        msg.className = "msg" + (k ? " " + k : "");
+      }
+
+      async function ensureCamera() {
+        if (localStream) {
+          localStream.getTracks().forEach(function (t) { t.stop(); });
+          localStream = null;
+        }
+        localStream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: {
+            facingMode: { ideal: facing },
+            width: { ideal: 960 },
+            height: { ideal: 720 },
+          },
+        });
+        video.srcObject = localStream;
+        stageEmpty.hidden = true;
+        try { await video.play(); } catch (_) {}
+        return localStream;
+      }
+
+      function grabFrame(maxW, quality) {
+        if (!video.videoWidth) return "";
+        var w = video.videoWidth;
+        var h = video.videoHeight;
+        var scale = Math.min(1, (maxW || 480) / w);
+        var c = document.createElement("canvas");
+        c.width = Math.round(w * scale);
+        c.height = Math.round(h * scale);
+        var ctx = c.getContext("2d");
+        ctx.translate(c.width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(video, 0, 0, c.width, c.height);
+        return c.toDataURL("image/jpeg", quality || 0.55);
+      }
+
+      function push(kind, image, text) {
+        return fetch("/api/canvas/phone/push", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            session_id: sid,
+            token: token,
+            kind: kind || "",
+            image: image || "",
+            text: text || "",
+            device: deviceLabel(),
+          }),
+        }).then(function (r) { return r.json(); });
+      }
+
+      function command(cmd) {
+        return fetch("/api/canvas/phone/command", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ session_id: sid, token: token, command: cmd }),
+        }).then(function (r) { return r.json(); });
+      }
+
+      function startFrames() {
+        stopFrames();
+        frameTimer = setInterval(function () {
+          if (!live || sending || document.hidden) return;
+          var frame = grabFrame(420, 0.48);
+          if (!frame) return;
+          sending = true;
+          push("live_frame", frame, "").finally(function () { sending = false; });
+        }, 320);
+      }
+      function stopFrames() {
+        if (frameTimer) { clearInterval(frameTimer); frameTimer = 0; }
+      }
+
+      async function startLive() {
+        if (live) {
+          live = false;
+          stopFrames();
+          btnLive.textContent = "Go live → Canvas";
+          btnLive.classList.remove("is-live");
+          remoteCard.hidden = true;
+          command("hangup").catch(function () {});
+          setStatus("on", "Linked · " + deviceLabel());
+          setMsg("Live stopped");
+          return;
+        }
+        setMsg("Starting camera…");
+        try {
+          await ensureCamera();
+          live = true;
+          btnLive.textContent = "Stop live";
+          btnLive.classList.add("is-live");
+          remoteCard.hidden = false;
+          setStatus("live", "LIVE → Canvas");
+          setMsg("Streaming frames into Canvas", "ok");
+          startFrames();
+          // send one immediate frame
+          var first = grabFrame(420, 0.5);
+          if (first) push("live_frame", first, "");
+        } catch (e) {
+          setMsg(e.message || "Camera failed — allow camera access", "err");
+          live = false;
+        }
+      }
+
+      if (!sid || !token) {
+        setStatus("", "Missing pair link");
+        setMsg("Open this from Canvas → Phone", "err");
+        btnLive.disabled = true;
+        return;
+      }
+
+      fetch("/api/canvas/phone/touch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session_id: sid, token: token, device: deviceLabel() }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d.ok) throw new Error(d.message || "Session expired");
+          setStatus("on", "Linked · " + (d.device || deviceLabel()));
+        })
+        .catch(function (e) {
+          setStatus("", "Not linked");
+          setMsg(e.message || "Could not link", "err");
+        });
+
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        ensureCamera().catch(function () {});
+      }
+
+      btnLive.addEventListener("click", startLive);
+      document.getElementById("btnFlip").addEventListener("click", async function () {
+        facing = facing === "environment" ? "user" : "environment";
+        try {
+          await ensureCamera();
+          setMsg("Camera flipped");
+        } catch (e) {
+          setMsg(e.message || "Flip failed", "err");
+        }
+      });
+      document.getElementById("btnSnap").addEventListener("click", async function () {
+        try {
+          await ensureCamera();
+          var still = grabFrame(720, 0.82);
+          if (!still) throw new Error("No frame yet");
+          var out = await push("", still, "Still from phone");
+          if (!out.ok) throw new Error(out.message || "Send failed");
+          setMsg("Still sent to Canvas", "ok");
+        } catch (e) {
+          setMsg(e.message || "Still failed", "err");
+        }
+      });
+      document.getElementById("btnRun").addEventListener("click", function () {
+        command("run").then(function (d) {
+          setMsg(d.ok ? "Run sent to Canvas" : (d.message || "Failed"), d.ok ? "ok" : "err");
+        });
+      });
+      document.getElementById("btnVision").addEventListener("click", function () {
+        var still = grabFrame(720, 0.8);
+        if (still) push("", still, "Vision request from phone");
+        command("vision").then(function (d) {
+          setMsg(d.ok ? "Vision requested" : (d.message || "Failed"), d.ok ? "ok" : "err");
+        });
+      });
+      document.getElementById("btnSeal").addEventListener("click", function () {
+        command("seal").then(function (d) {
+          setMsg(d.ok ? "Seal sent to Canvas" : (d.message || "Failed"), d.ok ? "ok" : "err");
+        });
+      });
+
+      window.addEventListener("pagehide", function () {
+        if (live) command("hangup").catch(function () {});
+        stopFrames();
+      });
+    })();
+  </script>
+</body>
+</html>
