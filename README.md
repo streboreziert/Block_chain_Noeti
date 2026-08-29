@@ -4,6 +4,8 @@
 
 Live network: **[noeticompute.com](https://noeticompute.com)**
 
+Job split math used when a prompt is too big for one weak node: [`noeti-split`](https://github.com/streboreziert/noeti-split) · [lab](https://robertstreize.com/lab.html#split)
+
 ---
 
 ## What's in this repo
